@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { CheckCircle, ArrowLeft, MessageCircle, Twitter } from 'lucide-react';
+import { CheckCircle, ArrowLeft, Twitter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
@@ -15,6 +15,9 @@ const Pricing = () => {
               Rezoome
             </Link>
             <div className="flex items-center gap-4">
+              <div className="text-sm text-muted-foreground">
+                0 credits left
+              </div>
               <Link to="/">
                 <Button variant="ghost" size="sm" className="text-sm">
                   <ArrowLeft className="h-4 w-4 mr-2" />
@@ -38,11 +41,8 @@ const Pricing = () => {
       <div className="container mx-auto px-6 py-20">
         <div className="max-w-2xl mx-auto text-center space-y-12">
           <div className="space-y-6">
-            <h1 className="text-5xl font-bold text-foreground">
-              Simple Pricing
-            </h1>
             <p className="text-xl text-muted-foreground">
-              One price, lifetime access, everything included
+              <strong>One price, lifetime access, everything included</strong>
             </p>
           </div>
 
@@ -61,10 +61,19 @@ const Pricing = () => {
                 {/* Features */}
                 <div className="space-y-4">
                   {[
-                    "1000 resumes",
-                    "All customization features", 
+                    "10 Credits",
+                    "All customization Features", 
                     "Access to new features",
-                    "Chat with founder (Click to DM)"
+                    <span key="founder">
+                      <a 
+                        href="https://x.com/Lsc8954" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-700 underline"
+                      >
+                        Chat with founder (Click to DM)
+                      </a>
+                    </span>
                   ].map((feature, index) => (
                     <div key={index} className="flex items-center space-x-3">
                       <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
@@ -73,22 +82,13 @@ const Pricing = () => {
                   ))}
                 </div>
 
-                {/* CTA Buttons */}
+                {/* CTA Button */}
                 <div className="space-y-4">
                   <Button 
                     size="lg"
                     className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-4 text-lg"
                   >
-                    Get Lifetime Access
-                  </Button>
-                  
-                  <Button 
-                    variant="outline"
-                    size="lg"
-                    className="w-full border-2 border-purple-200 hover:bg-purple-50"
-                  >
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    Chat with Founder
+                    Sign in to buy
                   </Button>
                 </div>
               </div>
@@ -96,13 +96,6 @@ const Pricing = () => {
 
             {/* Decorative gradient blur */}
             <div className="absolute -inset-4 bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-3xl blur-2xl -z-10"></div>
-          </div>
-
-          {/* Trust indicators */}
-          <div className="text-center space-y-4 pt-8">
-            <p className="text-sm text-muted-foreground">
-              ✨ No monthly fees • ✨ No hidden costs • ✨ Lifetime updates
-            </p>
           </div>
         </div>
       </div>
