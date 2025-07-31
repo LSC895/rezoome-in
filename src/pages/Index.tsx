@@ -105,6 +105,9 @@ const Index = () => {
               Rezoome
             </div>
             <div className="flex items-center gap-6">
+              <div className="text-sm text-muted-foreground">
+                0 credits left
+              </div>
               <Link to="/pricing">
                 <Button variant="ghost" size="sm" className="text-sm">
                   Pricing
@@ -133,9 +136,13 @@ const Index = () => {
           {/* Main Headline */}
           <div className="space-y-6">
             <h1 className="text-6xl md:text-7xl font-bold leading-tight">
+              <span className="text-foreground">Improve your resume.</span>
+              <br />
+              <span className="text-foreground">Get hired faster.</span>
+              <br />
               <span className="relative inline-block">
                 <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
-                  One resume for every job!
+                  Every job
                 </span>
                 <svg 
                   className="absolute -bottom-2 left-0 w-full h-3 text-black"
