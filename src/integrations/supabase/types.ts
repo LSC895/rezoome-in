@@ -14,7 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      generated_resumes: {
+        Row: {
+          ats_optimization_score: number | null
+          created_at: string
+          generated_content: string
+          id: string
+          job_description: string
+          session_id: string
+        }
+        Insert: {
+          ats_optimization_score?: number | null
+          created_at?: string
+          generated_content: string
+          id?: string
+          job_description: string
+          session_id: string
+        }
+        Update: {
+          ats_optimization_score?: number | null
+          created_at?: string
+          generated_content?: string
+          id?: string
+          job_description?: string
+          session_id?: string
+        }
+        Relationships: []
+      }
+      resume_analyses: {
+        Row: {
+          ats_score: number
+          created_at: string
+          file_name: string
+          file_size: number
+          id: string
+          overall_feedback: string
+          sections: Json
+          session_id: string
+        }
+        Insert: {
+          ats_score: number
+          created_at?: string
+          file_name: string
+          file_size: number
+          id?: string
+          overall_feedback: string
+          sections?: Json
+          session_id: string
+        }
+        Update: {
+          ats_score?: number
+          created_at?: string
+          file_name?: string
+          file_size?: number
+          id?: string
+          overall_feedback?: string
+          sections?: Json
+          session_id?: string
+        }
+        Relationships: []
+      }
+      user_sessions: {
+        Row: {
+          created_at: string
+          id: string
+          last_activity: string
+          session_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_activity?: string
+          session_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_activity?: string
+          session_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

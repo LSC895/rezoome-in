@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Upload, Star, ArrowRight, CheckCircle, Zap, RefreshCw, Twitter } from 'lucide-react';
 import FileUpload from '@/components/FileUpload';
@@ -5,63 +6,35 @@ import RoastResult from '@/components/RoastResult';
 import ResumeGenerator from '@/components/ResumeGenerator';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { useSession } from '@/hooks/useSession';
+import { useResumeAnalysis } from '@/hooks/useResumeAnalysis';
 import { Link } from 'react-router-dom';
 
 const Index = () => {
   const [currentStep, setCurrentStep] = useState('upload');
-  const [isLoading, setIsLoading] = useState(false);
-  const [showResults, setShowResults] = useState(false);
+  const { sessionId, isLoading: sessionLoading } = useSession();
+  const { analyzeResume, isAnalyzing, analysisResult } = useResumeAnalysis();
   const { toast } = useToast();
 
-  // Mock data for demo
-  const mockRoast = "Your resume reads like a grocery list from 2019. 'Responsible for managing tasks' - wow, groundbreaking stuff there! Your skills section is more scattered than my attention span during a Monday morning meeting. But hey, at least you used Comic Sans... wait, that's worse. Time to channel your inner Gordon Ramsay and give this resume the makeover it desperately needs! 🔥";
-  
-  const mockSections = [
-    {
-      name: "Contact Information",
-      score: 85,
-      feedback: "Solid contact info, but your email 'partyanimal2000@hotmail.com' isn't screaming 'hire me'"
-    },
-    {
-      name: "Professional Summary",
-      score: 45,
-      feedback: "Generic fluff that could apply to literally any human with a pulse"
-    },
-    {
-      name: "Work Experience",
-      score: 72,
-      feedback: "Good structure, but needs more quantifiable achievements and less buzzword bingo"
-    },
-    {
-      name: "Skills",
-      score: 38,
-      feedback: "Your skills section looks like you threw darts at a tech dictionary blindfolded"
-    },
-    {
-      name: "Education",
-      score: 90,
-      feedback: "Clean and professional - this section actually knows what it's doing"
-    }
-  ];
-
   const handleFileSelect = async (file: File) => {
-    setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    setIsLoading(false);
-    setShowResults(true);
-    setCurrentStep('results');
-    
-    toast({
-      title: "Resume analyzed! 🔥",
-      description: "Your resume has been thoroughly analyzed.",
-    });
+    if (!sessionId) {
+      toast({
+        title: "Session Error",
+        description: "Please refresh the page and try again.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const result = await analyzeResume(file, sessionId);
+      setCurrentStep('results');
+    } catch (error) {
+      console.error('Analysis failed:', error);
+    }
   };
 
   const handleTryAgain = () => {
-    setShowResults(false);
     setCurrentStep('upload');
   };
 
@@ -69,14 +42,14 @@ const Index = () => {
     setCurrentStep('generator');
   };
 
-  if (currentStep === 'results' && showResults) {
+  if (currentStep === 'results' && analysisResult) {
     return (
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-6 py-16 max-w-4xl">
           <RoastResult
-            roast={mockRoast}
-            atsScore={66}
-            sections={mockSections}
+            roast={analysisResult.overall_feedback}
+            atsScore={analysisResult.ats_score}
+            sections={analysisResult.sections}
             onTryAgain={handleTryAgain}
             onGenerateResume={handleGenerateResume}
           />
@@ -147,7 +120,11 @@ const Index = () => {
 
           {/* Upload Section */}
           <div className="max-w-lg mx-auto">
-            <FileUpload onFileSelect={handleFileSelect} isLoading={isLoading} />
+            {sessionLoading ? (
+              <div className="text-center text-muted-foreground">Loading...</div>
+            ) : (
+              <FileUpload onFileSelect={handleFileSelect} isLoading={isAnalyzing} />
+            )}
           </div>
 
           {/* Features */}

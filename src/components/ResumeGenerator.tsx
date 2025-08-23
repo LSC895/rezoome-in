@@ -1,8 +1,9 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, Upload, FileText, Wand2, Download, Copy } from 'lucide-react';
+import { ArrowLeft, Wand2, Download, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
+import { useResumeGeneration } from '@/hooks/useResumeGeneration';
+import { useSession } from '@/hooks/useSession';
 
 interface ResumeGeneratorProps {
   onBack: () => void;
@@ -10,86 +11,27 @@ interface ResumeGeneratorProps {
 
 const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({ onBack }) => {
   const [jobDescription, setJobDescription] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedResume, setGeneratedResume] = useState<string | null>(null);
-  const { toast } = useToast();
+  const { generateResume, isGenerating, generatedResume } = useResumeGeneration();
+  const { sessionId } = useSession();
 
   const handleGenerateResume = async () => {
-    if (!jobDescription.trim()) {
-      toast({
-        title: "Job description required",
-        description: "Please paste a job description to generate a tailored resume.",
-        variant: "destructive"
-      });
-      return;
+    if (!jobDescription.trim() || !sessionId) return;
+    
+    try {
+      await generateResume(jobDescription, sessionId);
+    } catch (error) {
+      console.error('Failed to generate resume:', error);
     }
-
-    setIsGenerating(true);
-    
-    // Simulate AI generation
-    await new Promise(resolve => setTimeout(resolve, 4000));
-    
-    setIsGenerating(false);
-    setGeneratedResume(`
-# TAILORED RESUME
-
-## John Doe
-Software Engineer | john.doe@email.com | +1-555-0123
-
-### PROFESSIONAL SUMMARY
-Results-driven Software Engineer with 3+ years of experience in full-stack development, specializing in React, Node.js, and cloud technologies. Proven track record of delivering scalable applications and improving system performance by 40%. Experienced in agile methodologies and cross-functional collaboration.
-
-### TECHNICAL SKILLS
-• **Frontend**: React.js, TypeScript, HTML5, CSS3, Tailwind CSS
-• **Backend**: Node.js, Express.js, Python, REST APIs
-• **Database**: MongoDB, PostgreSQL, Redis
-• **Cloud**: AWS, Docker, Kubernetes
-• **Tools**: Git, Jest, Jenkins, Jira
-
-### WORK EXPERIENCE
-
-**Senior Software Engineer** | TechCorp | 2022 - Present
-• Developed and maintained 5+ React-based web applications serving 100K+ users
-• Implemented microservices architecture reducing API response time by 35%
-• Led a team of 3 developers in agile sprints, delivering features 20% faster
-• Collaborated with product managers to define technical requirements
-
-**Software Developer** | StartupXYZ | 2021 - 2022  
-• Built responsive web applications using React and Node.js
-• Integrated third-party APIs and payment gateways
-• Optimized database queries improving performance by 25%
-• Participated in code reviews and mentored junior developers
-
-### EDUCATION
-**B.S. in Computer Science** | State University | 2021
-GPA: 3.8/4.0
-
-### CERTIFICATIONS
-• AWS Certified Developer Associate (2023)
-• Google Cloud Professional Developer (2022)
-
----
-*This resume has been automatically tailored for the specific job requirements based on your master CV.*
-    `);
-    
-    toast({
-      title: "Resume generated! ✨",
-      description: "Your job-specific resume is ready for download.",
-    });
   };
 
   const handleDownloadPDF = () => {
-    toast({
-      title: "PDF Downloaded",
-      description: "Your tailored resume has been downloaded as PDF.",
-    });
+    // In a real implementation, you'd convert markdown to PDF
+    console.log('Download PDF functionality would be implemented here');
   };
 
   const handleDownloadDOCX = () => {
-    toast({
-      title: "DOCX Downloaded", 
-      description: "Your tailored resume has been downloaded as DOCX.",
-    });
+    // In a real implementation, you'd convert markdown to DOCX
+    console.log('Download DOCX functionality would be implemented here');
   };
 
   return (
@@ -142,7 +84,7 @@ We are looking for a Senior Software Engineer with 3+ years of experience in Rea
           <div className="flex justify-center">
             <Button
               onClick={handleGenerateResume}
-              disabled={isGenerating || !jobDescription.trim()}
+              disabled={isGenerating || !jobDescription.trim() || !sessionId}
               size="lg"
               className="gradient-purple text-white font-sora font-bold text-xl py-4 px-8 rounded-2xl hover:opacity-90 transition-opacity"
             >
@@ -192,14 +134,13 @@ We are looking for a Senior Software Engineer with 3+ years of experience in Rea
 
             <div className="bg-muted/30 rounded-2xl p-6">
               <pre className="whitespace-pre-wrap text-sm text-foreground font-mono leading-relaxed">
-                {generatedResume}
+                {generatedResume.content}
               </pre>
             </div>
 
             <div className="text-center space-y-4">
               <div className="inline-flex items-center space-x-2 bg-green-50 text-green-700 px-4 py-2 rounded-full">
-                <FileText className="h-4 w-4" />
-                <span className="font-medium">ATS Score: 94/100 - Excellent Match!</span>
+                <span className="font-medium">ATS Score: {generatedResume.ats_score}/100 - Excellent Match!</span>
               </div>
               
               <p className="text-muted-foreground">
