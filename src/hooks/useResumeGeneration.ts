@@ -14,10 +14,13 @@ export const useResumeGeneration = () => {
   const [generatedResume, setGeneratedResume] = useState<GeneratedResume | null>(null);
   const { toast } = useToast();
 
-  const generateResume = async (jobDescription: string, sessionId: string, originalResume?: string) => {
+  const generateResume = async (jobDescription: string, sessionId: string) => {
     setIsGenerating(true);
     
     try {
+      // Get original resume content from localStorage
+      const originalResume = localStorage.getItem('originalResumeContent') || '';
+      
       const { data, error } = await supabase.functions.invoke('generate-resume', {
         body: {
           job_description: jobDescription,

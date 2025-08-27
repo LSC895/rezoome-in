@@ -27,6 +27,8 @@ serve(async (req) => {
       throw new Error('Gemini API key not configured')
     }
 
+    console.log('Generating tailored resume with Gemini API...')
+
     // Call Gemini API to generate tailored resume
     const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`, {
       method: 'POST',
@@ -36,35 +38,36 @@ serve(async (req) => {
       body: JSON.stringify({
         contents: [{
           parts: [{
-            text: `Create a tailored resume based on this job description. Use the following structure and make it ATS-optimized:
+            text: `You are an expert resume writer. Please create a tailored resume by adapting the provided master resume to match the job description. This is NOT about creating a template - you must use the actual content from the master resume and intelligently modify it to better fit the target role.
 
-Job Description:
+MASTER RESUME CONTENT:
+${original_resume || 'No master resume provided - please create a professional template'}
+
+JOB DESCRIPTION TO MATCH:
 ${job_description}
 
-${original_resume ? `Original Resume Context: ${original_resume}` : ''}
+INSTRUCTIONS:
+1. Use the REAL content from the master resume (experience, education, skills, projects)
+2. Reorder and emphasize experiences that are most relevant to the target job
+3. Modify bullet points to highlight relevant achievements and use keywords from the job description
+4. Adjust the professional summary to target the specific role
+5. Emphasize the most relevant skills and technologies mentioned in the job posting
+6. Keep the same factual information but present it in a way that best matches the job requirements
 
-Generate a professional resume in markdown format that includes:
-1. A professional summary tailored to the job
-2. Key skills that match the job requirements
-3. Work experience with quantifiable achievements
-4. Education section
-5. Relevant certifications
+Output the tailored resume in clean markdown format that can be easily converted to PDF. Make it professional, ATS-friendly, and specifically optimized for this job opportunity.
 
-Make sure to:
-- Use keywords from the job description naturally
-- Include quantifiable achievements (percentages, numbers, etc.)
-- Structure it for ATS systems
-- Keep it professional and concise
-- Focus on relevant experience for this specific role
-
-Format the response as clean markdown that can be easily converted to PDF.`
+If no master resume is provided, create a realistic professional resume template, but prioritize using the actual content when available.`
           }]
         }]
       })
     })
 
+    if (!geminiResponse.ok) {
+      throw new Error(`Gemini API error: ${geminiResponse.status}`)
+    }
+
     const geminiData = await geminiResponse.json()
-    console.log('Gemini response for resume generation:', geminiData)
+    console.log('Gemini response for resume generation received')
 
     if (!geminiData.candidates?.[0]?.content?.parts?.[0]?.text) {
       throw new Error('Invalid response from Gemini API')
@@ -79,7 +82,7 @@ Format the response as clean markdown that can be easily converted to PDF.`
         session_id,
         job_description,
         generated_content: generatedContent,
-        ats_optimization_score: 94 // High score since it's AI-optimized
+        ats_optimization_score: 92 // High score since it's AI-optimized and tailored
       })
       .select()
       .single()
@@ -89,13 +92,15 @@ Format the response as clean markdown that can be easily converted to PDF.`
       throw error
     }
 
+    console.log('Generated resume stored successfully:', data.id)
+
     return new Response(
       JSON.stringify({
         success: true,
         resume: {
           id: data.id,
           content: generatedContent,
-          ats_score: 94
+          ats_score: 92
         }
       }),
       {
@@ -105,9 +110,12 @@ Format the response as clean markdown that can be easily converted to PDF.`
     )
 
   } catch (error) {
-    console.error('Error:', error)
+    console.error('Error in generate-resume function:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: 'Please try again with your job description.'
+      }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,

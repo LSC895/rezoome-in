@@ -12,6 +12,7 @@ interface AnalysisResult {
     score: number;
     feedback: string;
   }>;
+  originalContent?: string;
 }
 
 export const useResumeAnalysis = () => {
@@ -42,14 +43,19 @@ export const useResumeAnalysis = () => {
 
       if (error) throw error;
 
-      setAnalysisResult(data.analysis);
+      const resultWithContent = {
+        ...data.analysis,
+        originalContent: fileContent
+      };
+
+      setAnalysisResult(resultWithContent);
       
       toast({
         title: "Resume analyzed! 🔥",
         description: "Your resume has been thoroughly analyzed.",
       });
 
-      return data.analysis;
+      return resultWithContent;
     } catch (error) {
       console.error('Analysis failed:', error);
       toast({

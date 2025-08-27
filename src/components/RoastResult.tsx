@@ -16,6 +16,7 @@ interface RoastResultProps {
   sections: Section[];
   onTryAgain: () => void;
   onGenerateResume?: () => void;
+  originalResumeContent?: string;
 }
 
 const RoastResult: React.FC<RoastResultProps> = ({ 
@@ -23,10 +24,18 @@ const RoastResult: React.FC<RoastResultProps> = ({
   atsScore, 
   sections, 
   onTryAgain,
-  onGenerateResume 
+  onGenerateResume,
+  originalResumeContent
 }) => {
   const [currentPersonality, setCurrentPersonality] = useState<'professional' | 'memer' | 'motivational' | 'hr'>('professional');
   
+  // Store original resume content in localStorage for the generator
+  useEffect(() => {
+    if (originalResumeContent) {
+      localStorage.setItem('originalResumeContent', originalResumeContent);
+    }
+  }, [originalResumeContent]);
+
   // Trigger confetti for high scores
   useEffect(() => {
     if (atsScore >= 80) {
@@ -50,11 +59,41 @@ const RoastResult: React.FC<RoastResultProps> = ({
     return <AlertTriangle className="h-5 w-5" />;
   };
 
+  const handleDownloadReport = () => {
+    const reportContent = `
+RESUME ANALYSIS REPORT
+======================
+
+ATS Score: ${atsScore}/100
+
+Overall Feedback:
+${roast}
+
+Section Breakdown:
+${sections.map(section => `
+${section.name}: ${section.score}/100
+${section.feedback}
+`).join('\n')}
+
+Generated on: ${new Date().toLocaleDateString()}
+    `.trim();
+
+    const blob = new Blob([reportContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `resume-analysis-${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const roastPersonalities = {
-    professional: "Your resume demonstrates solid fundamentals but requires strategic optimization to effectively communicate your value proposition to hiring managers and ATS systems.",
-    memer: "Your resume is giving 'I made this at 2 AM' energy. Time to level up from intern vibes to CEO energy! Your skills section is more scattered than my Wi-Fi connection.",
-    motivational: "Every great success story started with someone brave enough to improve! Your resume is a diamond in the rough - let's polish it until it SHINES! 🌟",
-    hr: "From an HR perspective, this resume needs better keyword optimization and clearer quantifiable achievements to pass our initial screening process."
+    professional: "Your resume shows solid potential with room for strategic improvements. Focus on optimizing keyword placement and quantifying achievements to better communicate your value to both ATS systems and hiring managers.",
+    memer: "Your resume has main character energy, but it needs some tweaks to really shine! Time to level up those keywords and make your achievements pop like they deserve to. You've got this! 💪",
+    motivational: "Every successful professional started somewhere, and your resume shows great foundation! With some focused improvements on keywords and metrics, you're going to absolutely crush those job applications! 🌟",
+    hr: "From a hiring perspective, this resume demonstrates good experience but would benefit from better keyword optimization and more quantifiable achievements to improve screening compatibility."
   };
 
   return (
@@ -72,7 +111,7 @@ const RoastResult: React.FC<RoastResultProps> = ({
         </Button>
         
         <div className="flex space-x-3">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handleDownloadReport}>
             <Download className="h-4 w-4 mr-2" />
             Download Report
           </Button>
@@ -109,7 +148,7 @@ const RoastResult: React.FC<RoastResultProps> = ({
         <div className="floating-card p-8">
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="font-sora font-bold text-2xl text-foreground">Detailed Feedback</h2>
+              <h2 className="font-sora font-bold text-2xl text-foreground">Feedback</h2>
               
               {/* Personality Selector */}
               <div className="flex space-x-2">

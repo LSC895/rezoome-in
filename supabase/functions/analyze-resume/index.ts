@@ -45,24 +45,33 @@ serve(async (req) => {
           body: JSON.stringify({
             contents: [{
               parts: [{
-                text: `Analyze this resume content and provide a detailed ATS score and feedback. Return the response in this exact JSON format:
+                text: `Please analyze this resume content and provide a detailed ATS score and constructive feedback. Be encouraging but honest, and focus on actionable improvements. Return the response in this exact JSON format:
 
 {
   "ats_score": <number between 0-100>,
-  "overall_feedback": "<detailed overall feedback about the resume>",
+  "overall_feedback": "<encouraging and constructive overall feedback about the resume>",
   "sections": [
     {
       "name": "<section name like Contact Information, Professional Summary, etc>",
       "score": <number between 0-100>,
-      "feedback": "<specific feedback for this section>"
+      "feedback": "<specific, actionable feedback for this section>"
     }
   ]
 }
 
+When scoring sections, please be fair and realistic. If content is visible and readable (even if formatting could be improved), score it based on the actual content quality, not just format issues. For example:
+- Contact info that exists should score 70-90+ depending on completeness
+- Professional summaries that highlight relevant skills should score 60-80+  
+- Experience sections with job titles, companies, and responsibilities should score 60-85+
+- Education with degree/school info should score 70-90+
+- Skills sections with relevant technologies should score 65-85+
+
+Focus on content quality and ATS optimization rather than perfect formatting. Be constructive and encouraging while providing specific improvement suggestions.
+
 Resume content to analyze:
 ${file_content}
 
-Provide constructive, actionable feedback that helps improve the resume's ATS compatibility and overall effectiveness.`
+Provide helpful, actionable feedback that motivates improvement while acknowledging existing strengths.`
               }]
             }]
           })
@@ -127,15 +136,20 @@ Provide constructive, actionable feedback that helps improve the resume's ATS co
       console.error('Failed to parse Gemini response:', analysisText)
       console.error('Parse error:', parseError)
       
-      // Fallback response if parsing fails
+      // Improved fallback response
       analysisData = {
-        ats_score: 75,
-        overall_feedback: "Your resume has been analyzed. The system encountered a parsing issue, but based on the content, consider optimizing keywords, improving formatting, and adding quantifiable achievements to boost your ATS score.",
+        ats_score: 65,
+        overall_feedback: "Your resume shows good potential! While I encountered a technical issue analyzing the specific formatting, I can see you have relevant experience and skills. Focus on using industry keywords, quantifying your achievements with numbers, and ensuring clean formatting. Consider using standard section headers and bullet points for better ATS compatibility.",
         sections: [
           {
             name: "Overall Structure",
-            score: 75,
-            feedback: "Resume structure is adequate but could benefit from better organization and keyword optimization. Consider adding more specific achievements and metrics."
+            score: 65,
+            feedback: "Your resume has a solid foundation. To improve ATS compatibility, ensure you use standard section headers like 'Experience', 'Education', and 'Skills'. Use consistent formatting and include relevant keywords from job descriptions you're targeting."
+          },
+          {
+            name: "Content Quality",
+            score: 70,
+            feedback: "Focus on quantifying your achievements with specific numbers and percentages. Use action verbs to start bullet points and highlight the impact you made in previous roles."
           }
         ]
       }

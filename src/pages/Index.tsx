@@ -52,6 +52,7 @@ const Index = () => {
             sections={analysisResult.sections}
             onTryAgain={handleTryAgain}
             onGenerateResume={handleGenerateResume}
+            originalResumeContent={analysisResult.originalContent}
           />
         </div>
       </div>
