@@ -1,19 +1,17 @@
 
 import React, { useState } from 'react';
-import { Upload, Star, ArrowRight, CheckCircle, Zap, RefreshCw, Twitter } from 'lucide-react';
+import { Upload, RefreshCw, Twitter, Wand2 } from 'lucide-react';
 import FileUpload from '@/components/FileUpload';
-import RoastResult from '@/components/RoastResult';
 import ResumeGenerator from '@/components/ResumeGenerator';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useSession } from '@/hooks/useSession';
-import { useResumeAnalysis } from '@/hooks/useResumeAnalysis';
 import { Link } from 'react-router-dom';
 
 const Index = () => {
   const [currentStep, setCurrentStep] = useState('upload');
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const { sessionId, isLoading: sessionLoading } = useSession();
-  const { analyzeResume, isAnalyzing, analysisResult } = useResumeAnalysis();
   const { toast } = useToast();
 
   const handleFileSelect = async (file: File) => {
@@ -26,44 +24,20 @@ const Index = () => {
       return;
     }
 
-    try {
-      const result = await analyzeResume(file, sessionId);
-      setCurrentStep('results');
-    } catch (error) {
-      console.error('Analysis failed:', error);
-    }
+    setUploadedFile(file);
+    setCurrentStep('generator');
   };
 
   const handleTryAgain = () => {
     setCurrentStep('upload');
+    setUploadedFile(null);
   };
 
-  const handleGenerateResume = () => {
-    setCurrentStep('generator');
-  };
-
-  if (currentStep === 'results' && analysisResult) {
+  if (currentStep === 'generator' && uploadedFile) {
     return (
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-6 py-16 max-w-4xl">
-          <RoastResult
-            roast={analysisResult.overall_feedback}
-            atsScore={analysisResult.ats_score}
-            sections={analysisResult.sections}
-            onTryAgain={handleTryAgain}
-            onGenerateResume={handleGenerateResume}
-            originalResumeContent={analysisResult.originalContent}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  if (currentStep === 'generator') {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-6 py-16 max-w-4xl">
-          <ResumeGenerator onBack={handleTryAgain} />
+          <ResumeGenerator onBack={handleTryAgain} uploadedFile={uploadedFile} />
         </div>
       </div>
     );
@@ -115,7 +89,7 @@ const Index = () => {
             </h1>
             
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Get instant feedback on your resume and create tailored versions for every job application.
+              Upload your master resume and generate tailored versions for any job application.
             </p>
           </div>
 
@@ -124,32 +98,18 @@ const Index = () => {
             {sessionLoading ? (
               <div className="text-center text-muted-foreground">Loading...</div>
             ) : (
-              <FileUpload onFileSelect={handleFileSelect} isLoading={isAnalyzing} />
+              <FileUpload onFileSelect={handleFileSelect} isLoading={false} />
             )}
           </div>
 
-          {/* Features */}
-          <div className="grid md:grid-cols-3 gap-8 pt-16">
+          {/* Single Feature */}
+          <div className="max-w-md mx-auto pt-16">
             <div className="group text-center space-y-4 p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:border-purple-200 transition-all duration-300">
               <div className="w-14 h-14 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
-                <Zap className="h-7 w-7 text-white" />
+                <Wand2 className="h-7 w-7 text-white" />
               </div>
-              <h3 className="font-semibold text-foreground text-lg">Instant Analysis</h3>
-              <p className="text-muted-foreground leading-relaxed">Get your ATS score and feedback in seconds</p>
-            </div>
-            <div className="group text-center space-y-4 p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:border-blue-200 transition-all duration-300">
-              <div className="w-14 h-14 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
-                <Star className="h-7 w-7 text-white" />
-              </div>
-              <h3 className="font-semibold text-foreground text-lg">Smart Feedback</h3>
-              <p className="text-muted-foreground leading-relaxed">Actionable tips to improve your resume</p>
-            </div>
-            <div className="group text-center space-y-4 p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:border-green-200 transition-all duration-300">
-              <div className="w-14 h-14 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
-                <RefreshCw className="h-7 w-7 text-white" />
-              </div>
-              <h3 className="font-semibold text-foreground text-lg">Job Tailoring</h3>
-              <p className="text-muted-foreground leading-relaxed">Customize your resume for any role</p>
+              <h3 className="font-semibold text-foreground text-lg">Smart Tailoring</h3>
+              <p className="text-muted-foreground leading-relaxed">Automatically customize your resume for any job description</p>
             </div>
           </div>
         </div>
@@ -172,23 +132,23 @@ const Index = () => {
                   1
                 </div>
                 <h3 className="font-semibold text-foreground text-lg">Upload</h3>
-                <p className="text-muted-foreground leading-relaxed">Upload your resume and get instant feedback</p>
+                <p className="text-muted-foreground leading-relaxed">Upload your master resume</p>
               </div>
 
               <div className="text-center space-y-4">
                 <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-full flex items-center justify-center mx-auto text-lg font-bold shadow-lg">
                   2
                 </div>
-                <h3 className="font-semibold text-foreground text-lg">Improve</h3>
-                <p className="text-muted-foreground leading-relaxed">Follow our recommendations to optimize</p>
+                <h3 className="font-semibold text-foreground text-lg">Paste Job</h3>
+                <p className="text-muted-foreground leading-relaxed">Paste any job description</p>
               </div>
 
               <div className="text-center space-y-4">
                 <div className="w-12 h-12 bg-gradient-to-r from-cyan-600 to-green-600 text-white rounded-full flex items-center justify-center mx-auto text-lg font-bold shadow-lg">
                   3
                 </div>
-                <h3 className="font-semibold text-foreground text-lg">Apply</h3>
-                <p className="text-muted-foreground leading-relaxed">Generate tailored versions for jobs</p>
+                <h3 className="font-semibold text-foreground text-lg">Download</h3>
+                <p className="text-muted-foreground leading-relaxed">Get your tailored resume</p>
               </div>
             </div>
           </div>

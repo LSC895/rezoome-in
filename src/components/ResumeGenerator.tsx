@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Wand2, Download, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useResumeGeneration } from '@/hooks/useResumeGeneration';
@@ -7,12 +7,32 @@ import { useSession } from '@/hooks/useSession';
 
 interface ResumeGeneratorProps {
   onBack: () => void;
+  uploadedFile: File;
 }
 
-const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({ onBack }) => {
+const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({ onBack, uploadedFile }) => {
   const [jobDescription, setJobDescription] = useState('');
   const { generateResume, isGenerating, generatedResume } = useResumeGeneration();
   const { sessionId } = useSession();
+
+  // Store the uploaded file content for generation
+  useEffect(() => {
+    const readFileContent = async () => {
+      try {
+        const fileContent = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsText(uploadedFile);
+        });
+        localStorage.setItem('originalResumeContent', fileContent);
+      } catch (error) {
+        console.error('Failed to read file content:', error);
+      }
+    };
+
+    readFileContent();
+  }, [uploadedFile]);
 
   const handleGenerateResume = async () => {
     if (!jobDescription.trim() || !sessionId) return;
@@ -45,7 +65,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({ onBack }) => {
           className="text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-5 w-5 mr-2" />
-          Back to Results
+          Upload New Resume
         </Button>
       </div>
 
@@ -54,8 +74,11 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({ onBack }) => {
           Generate Job-Specific Resume
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Paste any job description and get an ATS-optimized resume tailored specifically for that role
+          Paste any job description and get a tailored resume specifically for that role
         </p>
+        <div className="inline-flex items-center space-x-2 bg-green-50 text-green-700 px-4 py-2 rounded-full text-sm">
+          <span className="font-medium">✓ Resume uploaded: {uploadedFile.name}</span>
+        </div>
       </div>
 
       {/* Job Description Input */}
@@ -139,10 +162,6 @@ We are looking for a Senior Software Engineer with 3+ years of experience in Rea
             </div>
 
             <div className="text-center space-y-4">
-              <div className="inline-flex items-center space-x-2 bg-green-50 text-green-700 px-4 py-2 rounded-full">
-                <span className="font-medium">ATS Score: {generatedResume.ats_score}/100 - Excellent Match!</span>
-              </div>
-              
               <p className="text-muted-foreground">
                 This resume has been optimized with keywords from the job description and tailored to match the specific requirements.
               </p>
