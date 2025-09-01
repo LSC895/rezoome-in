@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -131,4 +130,14 @@ html {
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+/* Floating card component */
+.floating-card {
+  @apply bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl shadow-lg;
+}
+
+/* Gradient purple utility */
+.gradient-purple {
+  background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%);
 }

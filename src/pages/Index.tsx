@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Upload, RefreshCw, Twitter, Wand2 } from 'lucide-react';
 import FileUpload from '@/components/FileUpload';
@@ -7,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useSession } from '@/hooks/useSession';
 import { Link } from 'react-router-dom';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const Index = () => {
   const [currentStep, setCurrentStep] = useState('upload');
@@ -44,7 +44,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-background to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-background to-blue-50 dark:from-purple-950/20 dark:via-background dark:to-blue-950/20">
       {/* Header */}
       <div className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4">
@@ -61,6 +61,7 @@ const Index = () => {
               <Button size="sm" className="text-sm bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
                 Sign in
               </Button>
+              <ThemeToggle />
               <a 
                 href="https://twitter.com" 
                 target="_blank" 

@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Wand2, Download, Copy } from 'lucide-react';
+import { ArrowLeft, Wand2, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useResumeGeneration } from '@/hooks/useResumeGeneration';
 import { useSession } from '@/hooks/useSession';
+import { EditableResume } from './EditableResume';
 
 interface ResumeGeneratorProps {
   onBack: () => void;
@@ -12,6 +13,7 @@ interface ResumeGeneratorProps {
 
 const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({ onBack, uploadedFile }) => {
   const [jobDescription, setJobDescription] = useState('');
+  const [editedResumeContent, setEditedResumeContent] = useState('');
   const { generateResume, isGenerating, generatedResume } = useResumeGeneration();
   const { sessionId } = useSession();
 
@@ -34,6 +36,13 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({ onBack, uploadedFile 
     readFileContent();
   }, [uploadedFile]);
 
+  // Update edited content when new resume is generated
+  useEffect(() => {
+    if (generatedResume?.content) {
+      setEditedResumeContent(generatedResume.content);
+    }
+  }, [generatedResume]);
+
   const handleGenerateResume = async () => {
     if (!jobDescription.trim() || !sessionId) return;
     
@@ -44,14 +53,30 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({ onBack, uploadedFile 
     }
   };
 
+  const handleSaveResume = (content: string) => {
+    setEditedResumeContent(content);
+  };
+
   const handleDownloadPDF = () => {
-    // In a real implementation, you'd convert markdown to PDF
-    console.log('Download PDF functionality would be implemented here');
+    const element = document.createElement('a');
+    const file = new Blob([editedResumeContent], { type: 'text/plain' });
+    element.href = URL.createObjectURL(file);
+    element.download = `tailored-resume-${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+    URL.revokeObjectURL(element.href);
   };
 
   const handleDownloadDOCX = () => {
-    // In a real implementation, you'd convert markdown to DOCX
-    console.log('Download DOCX functionality would be implemented here');
+    const element = document.createElement('a');
+    const file = new Blob([editedResumeContent], { type: 'text/plain' });
+    element.href = URL.createObjectURL(file);
+    element.download = `tailored-resume-${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+    URL.revokeObjectURL(element.href);
   };
 
   return (
@@ -76,7 +101,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({ onBack, uploadedFile 
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
           Paste any job description and get a tailored resume specifically for that role
         </p>
-        <div className="inline-flex items-center space-x-2 bg-green-50 text-green-700 px-4 py-2 rounded-full text-sm">
+        <div className="inline-flex items-center space-x-2 bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 px-4 py-2 rounded-full text-sm">
           <span className="font-medium">✓ Resume uploaded: {uploadedFile.name}</span>
         </div>
       </div>
@@ -130,51 +155,26 @@ We are looking for a Senior Software Engineer with 3+ years of experience in Rea
       {/* Generated Resume Preview */}
       {generatedResume && (
         <div className="floating-card p-8 max-w-4xl mx-auto animate-scale-in">
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="font-sora font-bold text-2xl text-foreground">
-                Your Tailored Resume
-              </h2>
-              <div className="flex space-x-3">
-                <Button
-                  onClick={handleDownloadPDF}
-                  size="sm"
-                  className="gradient-purple text-white hover:opacity-90"
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Download PDF
-                </Button>
-                <Button
-                  onClick={handleDownloadDOCX}
-                  variant="outline"
-                  size="sm"
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Download DOCX
-                </Button>
-              </div>
-            </div>
+          <EditableResume
+            initialContent={editedResumeContent}
+            onSave={handleSaveResume}
+            onDownloadPDF={handleDownloadPDF}
+            onDownloadDOCX={handleDownloadDOCX}
+          />
 
-            <div className="bg-muted/30 rounded-2xl p-6">
-              <pre className="whitespace-pre-wrap text-sm text-foreground font-mono leading-relaxed">
-                {generatedResume.content}
-              </pre>
-            </div>
-
-            <div className="text-center space-y-4">
-              <p className="text-muted-foreground">
-                This resume has been optimized with keywords from the job description and tailored to match the specific requirements.
-              </p>
-            </div>
+          <div className="text-center space-y-4 mt-6">
+            <p className="text-muted-foreground">
+              This resume has been optimized with keywords from the job description and tailored to match the specific requirements.
+            </p>
           </div>
         </div>
       )}
 
       {/* Chrome Extension Promotion */}
-      <div className="floating-card p-8 max-w-2xl mx-auto text-center bg-gradient-to-br from-purple-50 to-pink-50">
+      <div className="floating-card p-8 max-w-2xl mx-auto text-center bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
         <div className="space-y-4">
-          <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto">
-            <Copy className="h-8 w-8 text-purple-600" />
+          <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/50 rounded-full flex items-center justify-center mx-auto">
+            <Copy className="h-8 w-8 text-purple-600 dark:text-purple-400" />
           </div>
           <h3 className="font-sora font-bold text-xl text-foreground">
             Get the Chrome Extension
