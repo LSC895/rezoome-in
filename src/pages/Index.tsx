@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useSession } from '@/hooks/useSession';
 import { Link } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
 
 const Index = () => {
   const [currentStep, setCurrentStep] = useState('upload');
@@ -58,9 +59,16 @@ const Index = () => {
                   Pricing
                 </Button>
               </Link>
-              <Button size="sm" className="text-sm bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-                Sign in
-              </Button>
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <Button size="sm" className="text-sm bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                    Sign in
+                  </Button>
+                </SignInButton>
+              </SignedOut>
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
               <ThemeToggle />
               <a 
                 href="https://twitter.com" 
