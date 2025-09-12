@@ -20,6 +20,13 @@ export const useSession = () => {
           
           storedSessionId = data.session_id;
           localStorage.setItem('resume_session_id', storedSessionId);
+
+          // Set session context for RLS policies
+          await supabase.rpc('set_config', {
+            setting_name: 'app.current_session_id',
+            setting_value: storedSessionId,
+            is_local: true
+          });
         } catch (error) {
           console.error('Failed to create session:', error);
           // Fallback to client-side generated session

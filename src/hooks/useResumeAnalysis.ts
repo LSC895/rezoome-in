@@ -24,6 +24,13 @@ export const useResumeAnalysis = () => {
     setIsAnalyzing(true);
     
     try {
+      // Set session context for RLS policies
+      await supabase.rpc('set_config', {
+        setting_name: 'app.current_session_id',
+        setting_value: sessionId,
+        is_local: true
+      });
+
       // Convert file to base64 for API
       const fileContent = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
