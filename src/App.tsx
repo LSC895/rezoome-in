@@ -7,6 +7,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Home from "./pages/Home";
 import Pricing from "./pages/Pricing";
+import ExtensionAuth from "./pages/ExtensionAuth";
+import ExtensionAuthSuccess from "./pages/ExtensionAuthSuccess";
+import ExtensionInstructions from "./pages/ExtensionInstructions";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +24,9 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/home" element={<Home />} />
           <Route path="/pricing" element={<Pricing />} />
+          <Route path="/extension-auth" element={<ExtensionAuth />} />
+          <Route path="/extension-auth-success" element={<ExtensionAuthSuccess />} />
+          <Route path="/extension-instructions" element={<ExtensionInstructions />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

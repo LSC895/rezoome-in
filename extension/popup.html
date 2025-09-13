@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rezoome Extension</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            width: 350px;
+            min-height: 400px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .tagline {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .auth-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .user-info {
+            background: rgba(255,255,255,0.1);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+        
+        .button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 8px;
+        }
+        
+        .button-primary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        .button-primary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .button-secondary {
+            background: transparent;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        .button-secondary:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .instructions {
+            font-size: 13px;
+            line-height: 1.5;
+            opacity: 0.9;
+            margin-top: 16px;
+        }
+        
+        .instructions ol {
+            padding-left: 16px;
+        }
+        
+        .instructions li {
+            margin-bottom: 4px;
+        }
+        
+        .status {
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .status.success {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .status.error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .resume-preview {
+            background: rgba(255,255,255,0.1);
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 12px;
+            font-size: 12px;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">Rezoome</div>
+        <div class="tagline">AI Resume Generator</div>
+    </div>
+    
+    <div class="content">
+        <!-- Authentication Section -->
+        <div id="authSection" class="auth-section">
+            <button id="loginBtn" class="button button-primary">Connect to Rezoome</button>
+            <div class="instructions">
+                <p>Connect your Rezoome account to start generating tailored resumes from job descriptions.</p>
+            </div>
+        </div>
+        
+        <!-- User Section -->
+        <div id="userSection" class="hidden">
+            <div class="user-info">
+                <div>✅ Connected to Rezoome</div>
+                <div id="userEmail" style="opacity: 0.8; font-size: 12px; margin-top: 4px;"></div>
+            </div>
+            
+            <button id="uploadResumeBtn" class="button button-primary">Upload Master Resume</button>
+            <button id="logoutBtn" class="button button-secondary">Disconnect</button>
+            
+            <div class="instructions">
+                <strong>How to use:</strong>
+                <ol>
+                    <li>Navigate to any job posting</li>
+                    <li>Select the job description text</li>
+                    <li>Right-click and choose "Generate Resume with Rezoome"</li>
+                    <li>Your tailored resume will be generated instantly!</li>
+                </ol>
+            </div>
+        </div>
+        
+        <!-- Status Messages -->
+        <div id="statusMessage" class="hidden"></div>
+        
+        <!-- Loading State -->
+        <div id="loadingState" class="hidden" style="text-align: center; padding: 20px;">
+            <div class="loading"></div>
+            <div style="margin-top: 8px; font-size: 14px;">Loading...</div>
+        </div>
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>

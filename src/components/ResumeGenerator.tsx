@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useResumeGeneration } from '@/hooks/useResumeGeneration';
 import { useSession } from '@/hooks/useSession';
 import { EditableResume } from './EditableResume';
+import ChromeExtensionPromo from './ChromeExtensionPromo';
 
 interface ResumeGeneratorProps {
   onBack: () => void;
@@ -172,23 +173,7 @@ We are looking for a Senior Software Engineer with 3+ years of experience in Rea
 
       {/* Chrome Extension Promotion */}
       <div className="floating-card p-8 max-w-2xl mx-auto text-center bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
-        <div className="space-y-4">
-          <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/50 rounded-full flex items-center justify-center mx-auto">
-            <Copy className="h-8 w-8 text-purple-600 dark:text-purple-400" />
-          </div>
-          <h3 className="font-sora font-bold text-xl text-foreground">
-            Get the Chrome Extension
-          </h3>
-          <p className="text-muted-foreground">
-            Highlight any job posting on LinkedIn, Indeed, or company websites and generate a tailored resume instantly.
-          </p>
-          <Button 
-            size="lg"
-            className="gradient-purple text-white font-sora font-bold hover:opacity-90 transition-opacity"
-          >
-            Add to Chrome (Coming Soon)
-          </Button>
-        </div>
+        <ChromeExtensionPromo />
       </div>
     </div>
   );
