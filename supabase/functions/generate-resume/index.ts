@@ -15,10 +15,10 @@ serve(async (req) => {
   try {
     const { job_description, session_id, original_resume } = await req.json()
 
-    // Initialize Supabase client
+    // Initialize Supabase client with Service Role to bypass RLS for trusted server-side inserts
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
     // Get Gemini API key from secrets
