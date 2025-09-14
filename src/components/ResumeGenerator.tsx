@@ -6,6 +6,7 @@ import { useResumeGeneration } from '@/hooks/useResumeGeneration';
 import { useSession } from '@/hooks/useSession';
 import { EditableResume } from './EditableResume';
 import ChromeExtensionPromo from './ChromeExtensionPromo';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ResumeGeneratorProps {
   onBack: () => void;
@@ -20,21 +21,49 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({ onBack, uploadedFile 
 
   // Store the uploaded file content for generation
   useEffect(() => {
-    const readFileContent = async () => {
+    const parseAndStoreFile = async () => {
       try {
-        const fileContent = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsText(uploadedFile);
+        const fileExtension = uploadedFile.name.toLowerCase().split('.').pop() || '';
+        
+        // For all file types, use the document parsing service
+        const formData = new FormData();
+        formData.append('file', uploadedFile);
+        
+        const response = await supabase.functions.invoke('parse-document', {
+          body: formData
         });
-        localStorage.setItem('originalResumeContent', fileContent);
+        
+        if (response.error) {
+          throw new Error(response.error.message || 'Failed to parse document');
+        }
+        
+        const { extractedText } = response.data;
+        localStorage.setItem('originalResumeContent', extractedText);
+        console.log(`Successfully parsed ${uploadedFile.name}: ${extractedText.length} characters`);
+        
       } catch (error) {
-        console.error('Failed to read file content:', error);
+        console.error('Failed to parse file:', error);
+        // Fallback: create a basic template
+        const fallbackContent = `Professional Resume (${uploadedFile.name})
+
+Please note: Unable to parse the uploaded file automatically. This is a template that should be customized with your actual information.
+
+PROFESSIONAL SUMMARY
+[Your professional summary here]
+
+WORK EXPERIENCE
+[Your work experience here]
+
+EDUCATION
+[Your education here]
+
+SKILLS
+[Your skills here]`;
+        localStorage.setItem('originalResumeContent', fallbackContent);
       }
     };
 
-    readFileContent();
+    parseAndStoreFile();
   }, [uploadedFile]);
 
   // Update edited content when new resume is generated
