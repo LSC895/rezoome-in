@@ -46,55 +46,104 @@ serve(async (req) => {
 
     const selectedStyle = templateStyles[template as keyof typeof templateStyles] || templateStyles.modern
 
-    // Build the prompt for both resume and cover letter
-    let promptText = `You are an expert resume and cover letter writer. Generate professional, ATS-optimized content.
+    // Build comprehensive prompt for high-quality resume generation
+    let promptText = `You are a world-class resume writer and career strategist with 20+ years of experience helping executives and professionals land their dream jobs at top companies. Generate an exceptional, ATS-optimized resume that will get past automated systems and impress hiring managers.
 
-CONTACT INFORMATION TO USE:
-Name: ${contact_info?.name || 'Extract from resume'}
-Phone: ${contact_info?.phone || 'Extract from resume'}
-Email: ${contact_info?.email || 'Extract from resume'}
-LinkedIn: ${contact_info?.linkedin || 'Extract from resume'}
+CONTACT INFORMATION (Use these exact details):
+Name: ${contact_info?.name || 'Extract from master resume'}
+Phone: ${contact_info?.phone || 'Extract from master resume'}
+Email: ${contact_info?.email || 'Extract from master resume'}
+LinkedIn: ${contact_info?.linkedin || 'Extract from master resume'}
 
-MASTER RESUME CONTENT:
+MASTER RESUME CONTENT TO WORK WITH:
 ${original_resume || 'No master resume provided'}
 
-JOB DESCRIPTION TO MATCH:
+TARGET JOB DESCRIPTION:
 ${job_description}
 
 TEMPLATE STYLE: ${template.toUpperCase()}
-${selectedStyle.colors}
-${selectedStyle.format}
+Design Guidelines: ${selectedStyle.colors} ${selectedStyle.format}
 
-TASKS:
-1. Generate a tailored resume using the master resume content
-2. Optimize for ATS with relevant keywords from job description
-3. Use the provided contact information consistently
-4. Apply ${template} template styling
-5. Reorder and emphasize most relevant experiences
-6. Create compelling bullet points with measurable achievements`
+CRITICAL RESUME WRITING INSTRUCTIONS:
+
+1. **STRATEGIC CONTENT TAILORING**:
+   - Analyze the job description thoroughly to identify key requirements, skills, and keywords
+   - Reposition and prioritize experiences from the master resume that directly match job requirements
+   - Quantify ALL achievements with specific numbers, percentages, dollar amounts, or metrics
+   - Use powerful action verbs (Spearheaded, Orchestrated, Optimized, Transformed, etc.)
+   
+2. **ATS OPTIMIZATION**:
+   - Incorporate exact keywords and phrases from job description naturally throughout
+   - Use standard section headers (Professional Summary, Experience, Education, Skills)
+   - Avoid graphics, tables, or unusual formatting that ATS can't read
+   - Include both acronyms and full terms (e.g., "API (Application Programming Interface)")
+
+3. **PROFESSIONAL SUMMARY** (3-4 lines):
+   - Lead with years of experience and primary expertise area
+   - Highlight 2-3 most relevant achievements with quantifiable results
+   - Include key skills that match job requirements
+   - End with value proposition for the target role
+
+4. **EXPERIENCE SECTION**:
+   - List experiences in reverse chronological order
+   - For each role, include: Job Title | Company | Location | Dates
+   - Write 3-5 bullet points per role focusing on achievements, not duties
+   - Use the CAR method: Challenge/Action/Result
+   - Start each bullet with strong action verbs
+   - Include metrics wherever possible (improved efficiency by 30%, managed team of 15, increased revenue by $2M)
+
+5. **SKILLS SECTION**:
+   - Prioritize technical skills mentioned in job description
+   - Group related skills logically (Technical Skills, Programming Languages, Tools & Platforms)
+   - Match skill level terminology used in job posting
+
+6. **EDUCATION & CERTIFICATIONS**:
+   - Include relevant degrees, certifications, and training
+   - Highlight any education/certs specifically mentioned in job description
+   - Include GPA if 3.7+ and recent graduate
+
+7. **FORMATTING & STRUCTURE**:
+   - Use clean, professional formatting with consistent spacing
+   - Ensure excellent readability with proper hierarchy
+   - Keep to 1-2 pages maximum
+   - Use markdown formatting for headers and emphasis
+
+**QUALITY STANDARDS**:
+- Every bullet point must demonstrate impact and value
+- No generic responsibilities - focus on unique contributions
+- Perfect grammar, spelling, and formatting
+- Compelling narrative that shows career progression
+- Strong alignment between candidate's experience and job requirements`
 
     if (include_cover_letter) {
       promptText += `
-7. Generate a matching cover letter that complements the resume
-8. Cover letter should be personalized for the specific role and company`
+
+8. **COVER LETTER REQUIREMENTS**:
+   - Professional business letter format with proper greeting
+   - Opening paragraph: Hook with specific interest in company/role
+   - Body paragraphs: 2-3 specific examples showing qualification alignment
+   - Closing: Strong call-to-action and enthusiasm
+   - Professional, confident tone throughout
+   - Complement resume without repeating it verbatim
+   - Address company's specific needs mentioned in job description
+   - Show knowledge of company culture, mission, or recent news`
     }
 
     promptText += `
 
-OUTPUT FORMAT:
-Return a JSON object with the following structure:
+MANDATORY OUTPUT FORMAT - Return valid JSON only:
 {
-  "resume": "Full resume content in markdown format optimized for ${template} template",
-  ${include_cover_letter ? '"cover_letter": "Professional cover letter in markdown format",' : ''}
+  "resume": "Complete professional resume in clean markdown format with proper headers, bullet points, and formatting. Must be exceptionally well-written and ATS-optimized.",
+  ${include_cover_letter ? '"cover_letter": "Professional cover letter in business format addressing the specific role and company",' : ''}
   "contact_extracted": {
-    "name": "extracted or provided name",
-    "phone": "extracted or provided phone",
-    "email": "extracted or provided email", 
-    "linkedin": "extracted or provided linkedin"
+    "name": "Full professional name",
+    "phone": "Phone number in standard format",
+    "email": "Professional email address", 
+    "linkedin": "Complete LinkedIn URL"
   }
 }
 
-Make the content professional, ATS-friendly, and specifically optimized for this job opportunity.`
+CRITICAL: Generate an outstanding resume that showcases the candidate as the perfect fit for this specific role. Every word should add value and demonstrate why they're the ideal hire.`
 
     // Call Gemini API
     const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`, {
