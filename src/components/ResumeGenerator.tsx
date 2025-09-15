@@ -89,11 +89,12 @@ SKILLS
       if (generatedResume.cover_letter) {
         setGeneratedCoverLetter(generatedResume.cover_letter);
       }
-      if (generatedResume.contact_info) {
+      // Only update contact info if it's empty (don't overwrite user edits)
+      if (generatedResume.contact_info && !contactInfo.name && !contactInfo.email && !contactInfo.phone && !contactInfo.linkedin) {
         setContactInfo(generatedResume.contact_info);
       }
     }
-  }, [generatedResume, setContactInfo]);
+  }, [generatedResume, setContactInfo, contactInfo]);
 
   // Loading progress simulation
   useEffect(() => {
