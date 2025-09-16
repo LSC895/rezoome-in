@@ -46,14 +46,51 @@ serve(async (req) => {
 
     const selectedStyle = templateStyles[template as keyof typeof templateStyles] || templateStyles.modern
 
+    // Extract contact info from resume text if not provided
+    let finalContactInfo = contact_info;
+    if (!contact_info?.name || !contact_info?.email) {
+      console.log('Contact info incomplete, extracting from resume text...');
+      
+      // Extract email
+      const emailMatch = original_resume.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+      const phoneMatch = original_resume.match(/(?:\+?1[-.\s]?)?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}/);
+      const linkedinMatch = original_resume.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[a-zA-Z0-9-]+\/?/i);
+      
+      // Extract name from first few lines
+      const lines = original_resume.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+      let extractedName = '';
+      
+      for (const line of lines.slice(0, 10)) {
+        if (line.toLowerCase().includes('resume') || 
+            line.toLowerCase().includes('cv') || 
+            line.includes('@') ||
+            /^\+?[\d\s\-\(\)]+$/.test(line)) {
+          continue;
+        }
+        
+        const namePattern = /^[A-Z][a-zA-Z''-]*(?:\s+[A-Z][a-zA-Z''-]*){1,3}$/;
+        if (namePattern.test(line) && line.length < 50) {
+          extractedName = line;
+          break;
+        }
+      }
+      
+      finalContactInfo = {
+        name: contact_info?.name || extractedName || 'Professional Name',
+        email: contact_info?.email || (emailMatch ? emailMatch[0] : 'professional@email.com'),
+        phone: contact_info?.phone || (phoneMatch ? phoneMatch[0] : '(555) 123-4567'),
+        linkedin: contact_info?.linkedin || (linkedinMatch ? (linkedinMatch[0].startsWith('http') ? linkedinMatch[0] : `https://${linkedinMatch[0]}`) : 'https://linkedin.com/in/professional')
+      };
+    }
+
     // Build comprehensive prompt for high-quality resume generation
     let promptText = `You are a world-class resume writer and career strategist with 20+ years of experience helping executives and professionals land their dream jobs at top companies. Generate an exceptional, ATS-optimized resume that will get past automated systems and impress hiring managers.
 
-CONTACT INFORMATION (Use these exact details):
-Name: ${contact_info?.name || 'Extract from master resume'}
-Phone: ${contact_info?.phone || 'Extract from master resume'}
-Email: ${contact_info?.email || 'Extract from master resume'}
-LinkedIn: ${contact_info?.linkedin || 'Extract from master resume'}
+CONTACT INFORMATION TO USE (NEVER use placeholders - these are the actual details):
+Name: ${finalContactInfo.name}
+Phone: ${finalContactInfo.phone}
+Email: ${finalContactInfo.email}
+LinkedIn: ${finalContactInfo.linkedin}
 
 MASTER RESUME CONTENT TO WORK WITH:
 ${original_resume || 'No master resume provided'}
@@ -103,10 +140,13 @@ CRITICAL RESUME WRITING INSTRUCTIONS:
    - Include GPA if 3.7+ and recent graduate
 
 7. **FORMATTING & STRUCTURE**:
-   - Use clean, professional formatting with consistent spacing
-   - Ensure excellent readability with proper hierarchy
-   - Keep to 1-2 pages maximum
-   - Use markdown formatting for headers and emphasis
+   - Use clean, professional formatting with consistent spacing and visual hierarchy
+   - Create a modern, visually appealing layout with strategic use of whitespace
+   - Use markdown formatting: # for main headers, ## for section headers, **bold** for emphasis
+   - Implement the template color scheme: ${selectedStyle.colors}
+   - Ensure perfect typography with proper font hierarchy and spacing
+   - Keep to 1-2 pages maximum with excellent readability
+   - Create sections with clear visual separation and professional borders/dividers
 
 **QUALITY STANDARDS**:
 - Every bullet point must demonstrate impact and value
@@ -195,7 +235,7 @@ CRITICAL: Generate an outstanding resume that showcases the candidate as the per
         generated_content: parsedContent.resume,
         cover_letter: parsedContent.cover_letter || null,
         template: template,
-        contact_info: parsedContent.contact_extracted,
+        contact_info: finalContactInfo,
         ats_optimization_score: 94
       })
       .select()
@@ -215,7 +255,7 @@ CRITICAL: Generate an outstanding resume that showcases the candidate as the per
           id: data.id,
           content: parsedContent.resume,
           cover_letter: parsedContent.cover_letter,
-          contact_info: parsedContent.contact_extracted,
+          contact_info: finalContactInfo,
           template: template,
           ats_score: 94
         }
