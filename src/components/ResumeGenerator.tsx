@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useResumeGeneration } from '@/hooks/useResumeGeneration';
 import { useSession } from '@/hooks/useSession';
 import { useContactExtraction } from '@/hooks/useContactExtraction';
-import { EditableResume } from './EditableResume';
+import { FormattedResume } from './FormattedResume';
 import ChromeExtensionPromo from './ChromeExtensionPromo';
 import LoadingSkeleton from './LoadingSkeleton';
 import TemplateSelector from './TemplateSelector';
@@ -25,6 +25,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({ onBack, uploadedFile 
   const [generatedCoverLetter, setGeneratedCoverLetter] = useState('');
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingStatus, setLoadingStatus] = useState('');
+  const [isEditingResume, setIsEditingResume] = useState(false);
   
   const { generateResume, isGenerating, generatedResume } = useResumeGeneration();
   const { sessionId } = useSession();
@@ -141,6 +142,15 @@ SKILLS
 
   const handleSaveResume = (content: string) => {
     setEditedResumeContent(content);
+    setIsEditingResume(false);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditingResume(false);
+  };
+
+  const handleEditToggle = () => {
+    setIsEditingResume(!isEditingResume);
   };
 
   const handleDownloadPDF = () => {
@@ -292,19 +302,26 @@ We are looking for a Senior Software Engineer with 3+ years of experience in Rea
       {/* Generated Resume Preview */}
       {generatedResume && !isGenerating && (
         <div className="space-y-6">
-          <div className="floating-card p-8 max-w-4xl mx-auto animate-scale-in">
-            <EditableResume
-              initialContent={editedResumeContent}
+          <div className="max-w-5xl mx-auto animate-scale-in">
+            <FormattedResume
+              content={editedResumeContent}
+              template={selectedTemplate}
+              contactInfo={contactInfo}
+              isEditing={isEditingResume}
+              onEditToggle={handleEditToggle}
               onSave={handleSaveResume}
+              onCancel={handleCancelEdit}
               onDownloadPDF={handleDownloadPDF}
               onDownloadDOCX={handleDownloadDOCX}
             />
 
-            <div className="text-center space-y-4 mt-6">
-              <p className="text-muted-foreground">
-                This resume has been optimized with keywords from the job description and tailored to match the specific requirements using the {selectedTemplate} template.
-              </p>
-            </div>
+            {!isEditingResume && (
+              <div className="text-center space-y-4 mt-6">
+                <p className="text-muted-foreground">
+                  This resume has been optimized with keywords from the job description and tailored to match the specific requirements using the {selectedTemplate} template.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Cover Letter Preview */}

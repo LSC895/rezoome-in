@@ -111,7 +111,7 @@ CRITICAL RESUME WRITING INSTRUCTIONS:
    
 2. **ATS OPTIMIZATION**:
    - Incorporate exact keywords and phrases from job description naturally throughout
-   - Use standard section headers (Professional Summary, Experience, Education, Skills)
+   - Use standard section headers (PROFESSIONAL SUMMARY, EXPERIENCE, EDUCATION, SKILLS)
    - Avoid graphics, tables, or unusual formatting that ATS can't read
    - Include both acronyms and full terms (e.g., "API (Application Programming Interface)")
 
@@ -139,14 +139,20 @@ CRITICAL RESUME WRITING INSTRUCTIONS:
    - Highlight any education/certs specifically mentioned in job description
    - Include GPA if 3.7+ and recent graduate
 
-7. **FORMATTING & STRUCTURE**:
-   - Use clean, professional formatting with consistent spacing and visual hierarchy
-   - Create a modern, visually appealing layout with strategic use of whitespace
-   - Use markdown formatting: # for main headers, ## for section headers, **bold** for emphasis
-   - Implement the template color scheme: ${selectedStyle.colors}
-   - Ensure perfect typography with proper font hierarchy and spacing
-   - Keep to 1-2 pages maximum with excellent readability
-   - Create sections with clear visual separation and professional borders/dividers
+7. **FORMATTING REQUIREMENTS**:
+   - Use ALL CAPS for main section headers (PROFESSIONAL SUMMARY, EXPERIENCE, EDUCATION, SKILLS)
+   - For job entries, use format: Job Title | Company | Location | Date Range
+   - Use bullet points (•) for all achievement lists
+   - Leave blank lines between sections for clear separation
+   - Keep consistent formatting throughout
+   - Focus on content structure that will be beautifully styled by the application
+
+**OUTPUT FORMAT REQUIREMENTS**:
+- Start each major section with ALL CAPS header
+- Use consistent bullet point formatting
+- Include actual contact information (no placeholders)
+- Ensure all content is from the master resume but optimized for the target job
+- Make it comprehensive but concise (1-2 pages worth of content)
 
 **QUALITY STANDARDS**:
 - Every bullet point must demonstrate impact and value
