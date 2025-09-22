@@ -109,9 +109,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_old_sessions: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       set_session_context: {
         Args: { session_id_param: string }
         Returns: undefined
+      }
+      validate_session_access: {
+        Args: { table_session_id: string }
+        Returns: boolean
       }
     }
     Enums: {
