@@ -33,38 +33,59 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({ onBack, uploadedFile 
 
   // Store the uploaded file content for generation
   useEffect(() => {
-    const parseAndStoreFile = async () => {
-      try {
-        const fileExtension = uploadedFile.name.toLowerCase().split('.').pop() || '';
-        
-        // For all file types, use the document parsing service
-        const formData = new FormData();
-        formData.append('file', uploadedFile);
-        
-        const FUNCTION_URL = 'https://wmqtvnurwoispusqlsgw.supabase.co/functions/v1/parse-document';
-        const resp = await fetch(FUNCTION_URL, {
-          method: 'POST',
-          body: formData,
-        });
+    let isCancelled = false;
+    const parseKey = `${uploadedFile.name}-${uploadedFile.size}-${uploadedFile.lastModified}`;
 
-        if (!resp.ok) {
-          const errText = await resp.text();
-          throw new Error(errText || 'Failed to parse document');
+    const applyContent = (text: string) => {
+      if (isCancelled) return;
+      localStorage.setItem('originalResumeContent', text);
+      const extracted = extractContactInfo(text);
+      setContactInfo(extracted);
+      sessionStorage.setItem(`parsed:${parseKey}`, '1');
+      console.log(`Stored content for ${uploadedFile.name}: ${text.length} characters`);
+    };
+
+    const parse = async () => {
+      try {
+        // Use cache when available to avoid repeated work and network calls
+        if (sessionStorage.getItem(`parsed:${parseKey}`)) {
+          const cached = localStorage.getItem('originalResumeContent');
+          if (cached) {
+            console.log('Using cached parsed content');
+            applyContent(cached);
+            return;
+          }
         }
 
-        const responseData = await resp.json();
-        const { extractedText } = responseData;
-        localStorage.setItem('originalResumeContent', extractedText);
-        
-        // Extract contact info from parsed resume
-        const extracted = extractContactInfo(extractedText);
-        setContactInfo(extracted);
-        
-        console.log(`Successfully parsed ${uploadedFile.name}: ${extractedText.length} characters`);
-        
+        const ext = uploadedFile.name.toLowerCase().split('.').pop() || '';
+
+        // For plain text files, parse on the client only
+        if (ext === 'txt' || ext === 'md' || ext === 'csv') {
+          const text = await uploadedFile.text();
+          applyContent(text);
+          return;
+        }
+
+        // IMPORTANT: Avoid calling edge functions due to exceeded quota.
+        // Provide a graceful local fallback for PDFs and other formats for now.
+        const fallbackContent = `Professional Resume (${uploadedFile.name})
+
+Please note: Unable to parse the uploaded file automatically due to usage limits. This is a template that should be customized with your actual information.
+
+PROFESSIONAL SUMMARY
+[Your professional summary here]
+
+WORK EXPERIENCE
+[Your work experience here]
+
+EDUCATION
+[Your education here]
+
+SKILLS
+[Your skills here]`;
+        applyContent(fallbackContent);
       } catch (error) {
-        console.error('Failed to parse file:', error);
-        // Fallback: create a basic template
+        console.error('Failed to parse file, using fallback:', error);
         const fallbackContent = `Professional Resume (${uploadedFile.name})
 
 Please note: Unable to parse the uploaded file automatically. This is a template that should be customized with your actual information.
@@ -80,12 +101,14 @@ EDUCATION
 
 SKILLS
 [Your skills here]`;
-        localStorage.setItem('originalResumeContent', fallbackContent);
+        applyContent(fallbackContent);
       }
     };
 
-    parseAndStoreFile();
-  }, [uploadedFile, extractContactInfo, setContactInfo]);
+    parse();
+    return () => { isCancelled = true; };
+  }, [uploadedFile]);
+
 
   // Update edited content when new resume is generated
   useEffect(() => {

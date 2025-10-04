@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 
 interface ContactInfo {
   name: string;
@@ -15,7 +15,7 @@ export const useContactExtraction = () => {
     linkedin: ''
   });
 
-  const extractContactInfo = (resumeText: string): ContactInfo => {
+  const extractContactInfo = useCallback((resumeText: string): ContactInfo => {
     const extracted: ContactInfo = {
       name: '',
       phone: '',
@@ -125,11 +125,12 @@ export const useContactExtraction = () => {
 
     console.log('Extracted contact info:', extracted);
     return extracted;
-  };
+  }, []);
 
-  const updateContactInfo = (info: Partial<ContactInfo>) => {
+
+  const updateContactInfo = useCallback((info: Partial<ContactInfo>) => {
     setContactInfo(prev => ({ ...prev, ...info }));
-  };
+  }, []);
 
   return {
     contactInfo,
