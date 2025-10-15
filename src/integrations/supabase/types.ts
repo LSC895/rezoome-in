@@ -14,7 +14,99 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      generated_resumes: {
+        Row: {
+          ats_optimization_score: number | null
+          contact_info: Json | null
+          cover_letter: string | null
+          created_at: string
+          generated_content: string
+          id: string
+          job_description: string
+          template: string | null
+          user_id: string
+        }
+        Insert: {
+          ats_optimization_score?: number | null
+          contact_info?: Json | null
+          cover_letter?: string | null
+          created_at?: string
+          generated_content: string
+          id?: string
+          job_description: string
+          template?: string | null
+          user_id: string
+        }
+        Update: {
+          ats_optimization_score?: number | null
+          contact_info?: Json | null
+          cover_letter?: string | null
+          created_at?: string
+          generated_content?: string
+          id?: string
+          job_description?: string
+          template?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      resume_analyses: {
+        Row: {
+          ats_score: number
+          created_at: string
+          file_name: string
+          file_size: number
+          id: string
+          overall_feedback: string
+          sections: Json | null
+          user_id: string
+        }
+        Insert: {
+          ats_score: number
+          created_at?: string
+          file_name: string
+          file_size: number
+          id?: string
+          overall_feedback: string
+          sections?: Json | null
+          user_id: string
+        }
+        Update: {
+          ats_score?: number
+          created_at?: string
+          file_name?: string
+          file_size?: number
+          id?: string
+          overall_feedback?: string
+          sections?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
