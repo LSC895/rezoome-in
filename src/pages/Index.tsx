@@ -1,17 +1,21 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Upload, RefreshCw, Twitter, Wand2 } from 'lucide-react';
 import FileUpload from '@/components/FileUpload';
 import ResumeGenerator from '@/components/ResumeGenerator';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Link } from 'react-router-dom';
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { supabase } from '@/integrations/supabase/client';
+
 
 const Index = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { user } = useSupabaseAuth();
 
+  const signOut = async () => {
+    await supabase.auth.signOut();
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
@@ -28,16 +32,17 @@ const Index = () => {
                   Pricing
                 </Button>
               </Link>
-              <SignedOut>
-                <SignInButton mode="modal">
+              {!user ? (
+                <Link to="/auth">
                   <Button size="sm" className="text-sm bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
                     Sign in
                   </Button>
-                </SignInButton>
-              </SignedOut>
-              <SignedIn>
-                <UserButton />
-              </SignedIn>
+                </Link>
+              ) : (
+                <Button onClick={signOut} variant="ghost" size="sm">
+                  Sign out
+                </Button>
+              )}
               <a 
                 href="https://twitter.com" 
                 target="_blank" 
@@ -72,14 +77,13 @@ const Index = () => {
 
           {/* Get Started Section */}
           <div className="max-w-lg mx-auto">
-            <SignedOut>
-              <SignInButton mode="modal">
+            {!user ? (
+              <Link to="/auth">
                 <Button size="lg" className="text-lg px-8 py-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg">
                   Get Started - Sign In
                 </Button>
-              </SignInButton>
-            </SignedOut>
-            <SignedIn>
+              </Link>
+            ) : (
               <Button 
                 size="lg" 
                 className="text-lg px-8 py-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg"
@@ -87,7 +91,7 @@ const Index = () => {
               >
                 Start Creating Resume
               </Button>
-            </SignedIn>
+            )}
           </div>
 
           {/* Single Feature */}

@@ -11,6 +11,7 @@ import ExtensionAuth from "./pages/ExtensionAuth";
 import ExtensionAuthSuccess from "./pages/ExtensionAuthSuccess";
 import ExtensionInstructions from "./pages/ExtensionInstructions";
 import NotFound from "./pages/NotFound";
+import Auth from "./pages/Auth";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
           <Route path="/home" element={<Home />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/extension-auth" element={<ExtensionAuth />} />
