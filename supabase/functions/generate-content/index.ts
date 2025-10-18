@@ -94,6 +94,20 @@ serve(async (req) => {
 
     // Parse and validate input
     const body = await req.json();
+    
+    // Defensively strip empty contact_info fields before validation
+    if (body?.contact_info && typeof body.contact_info === 'object') {
+      for (const key of ['name', 'email', 'phone', 'linkedin']) {
+        const value = body.contact_info[key];
+        if (typeof value === 'string' && value.trim() === '') {
+          delete body.contact_info[key];
+        }
+      }
+      if (Object.keys(body.contact_info).length === 0) {
+        delete body.contact_info;
+      }
+    }
+    
     const validatedData = generateContentSchema.parse(body);
 
     // Get Gemini API key
@@ -112,45 +126,68 @@ serve(async (req) => {
 
     const templateStyle = templateStyles[validatedData.template || 'modern'];
 
-    const systemPrompt = `You are an expert resume writer and ATS optimization specialist. Your task is to tailor resumes to specific job descriptions while maintaining authenticity and optimizing for Applicant Tracking Systems.
+    const systemPrompt = `You are an elite ATS resume optimization specialist with expertise in creating 10/10 resumes that pass all applicant tracking systems and impress hiring managers.
 
-Key requirements:
-1. Analyze the job description for required skills, experience, and keywords
-2. Restructure and rewrite the resume to highlight relevant experience
-3. Use strong action verbs and quantifiable achievements
-4. Incorporate job-specific keywords naturally
-5. Maintain professional formatting suitable for ATS parsing
+CRITICAL RULES - NEVER BREAK THESE:
+1. ABSOLUTELY NO PLACEHOLDERS - Never use [Previous Company], [City, Country], [Start Date], [End Date], [Your Degree], or ANY bracket placeholders
+2. USE ONLY REAL DATA - Extract and use ACTUAL company names, dates, locations, technologies, and metrics from the original resume
+3. IF INFORMATION IS MISSING - Either omit that detail gracefully or use the exact information provided without adding brackets
+4. PRESERVE ALL SPECIFIC DETAILS - Keep real company names, exact dates, actual cities, precise numbers, and technology names
+5. CREATE SHARE-READY CONTENT - The resume must be immediately usable without any editing needed
+
+ATS OPTIMIZATION REQUIREMENTS:
+1. Parse the job description to identify: required skills, preferred technologies, key responsibilities, required experience level, industry-specific keywords
+2. Extract from master CV: All technical skills, all tools/technologies used, all quantifiable achievements (numbers, percentages, metrics), all certifications, actual company names and dates, real project details
+3. Strategically place keywords: Use exact keywords from job description in skills section, naturally integrate keywords into bullet points, match terminology used in job posting (e.g., if they say "Kubernetes" don't say "K8s")
+4. Optimize formatting for ATS: Use standard section headers (SUMMARY, EXPERIENCE, SKILLS, EDUCATION, CERTIFICATIONS), use simple bullet points (•), avoid tables, columns, or complex formatting, use standard date formats (Month YYYY - Month YYYY)
+5. Quantify everything possible: Add metrics to every bullet point where possible (%, $, time saved, scale), show impact and results, not just responsibilities
 6. ${templateStyle}
-7. Keep the same core experiences but emphasize relevant aspects`;
 
-    const userPrompt = `Job Description:
+STRUCTURE AND CONTENT QUALITY:
+1. SUMMARY (3-4 lines): Start with years of experience + key specialization, list 3-4 most relevant skills for THIS job, add 1-2 major quantifiable achievements, end with value proposition aligned to job posting
+2. EXPERIENCE: Use strong action verbs (Architected, Orchestrated, Spearheaded, Engineered, Optimized, Implemented), every bullet must have measurable impact, tailor each role's bullets to highlight relevant experience, prioritize most relevant achievements at top of each role
+3. SKILLS: Group by category (e.g., Cloud Platforms, DevOps Tools, Languages), list most job-relevant skills first, use exact terminology from job description
+4. EDUCATION & CERTIFICATIONS: List relevant certifications prominently, include actual degree names and institutions from master CV
+
+KEYWORD DENSITY: Aim for 2-3% keyword density from job description without keyword stuffing`;
+
+    const userPrompt = `JOB DESCRIPTION TO TAILOR FOR:
 ${validatedData.job_description}
 
-Original Resume:
+MASTER CV / ORIGINAL RESUME (USE ALL REAL DATA FROM THIS):
 ${validatedData.original_resume}
 
-${validatedData.contact_info ? `Contact Information:
+${validatedData.contact_info ? `CONTACT INFORMATION (USE THESE EXACT DETAILS):
 Name: ${validatedData.contact_info.name || 'Not provided'}
 Email: ${validatedData.contact_info.email || 'Not provided'}
 Phone: ${validatedData.contact_info.phone || 'Not provided'}
 LinkedIn: ${validatedData.contact_info.linkedin || 'Not provided'}` : ''}
 
-Please generate:
-1. An ATS-optimized, tailored resume that highlights relevant experience for this position
-${validatedData.include_cover_letter ? '2. A compelling cover letter (max 400 words) that connects the candidate\'s experience to the role' : ''}
+YOUR TASK:
+1. Analyze the job description and extract all critical keywords, required skills, and qualifications
+2. Review the master CV and identify all relevant experience, skills, and achievements that match the job
+3. Create a highly tailored, ATS-optimized resume that:
+   - Uses ONLY real information from the master CV (no placeholders!)
+   - Strategically highlights the most relevant experience for THIS specific job
+   - Incorporates job description keywords naturally throughout
+   - Quantifies all achievements with specific metrics
+   - Is immediately ready to submit (no editing needed)
+${validatedData.include_cover_letter ? '4. Write a compelling, personalized cover letter (350-400 words) that:\n   - Opens with enthusiasm for the specific role and company\n   - Connects 2-3 key experiences from the CV to job requirements\n   - Shows understanding of company/role challenges\n   - Closes with strong call to action' : ''}
 
-Return your response as valid JSON in this exact format:
+RETURN FORMAT (valid JSON only):
 {
-  "resume": "The full tailored resume content here",
-  "cover_letter": ${validatedData.include_cover_letter ? '"The cover letter content here"' : 'null'},
-  "ats_score": 85,
+  "resume": "Full tailored resume with REAL data, no placeholders, immediately shareable",
+  "cover_letter": ${validatedData.include_cover_letter ? '"Personalized cover letter"' : 'null'},
+  "ats_score": 90,
   "contact_info": {
-    "name": "Full Name",
-    "email": "email@example.com",
-    "phone": "+1234567890",
-    "linkedin": "linkedin.com/in/profile"
+    "name": "Actual name from contact info or CV",
+    "email": "actual@email.com",
+    "phone": "+actual-phone",
+    "linkedin": "actual-linkedin-url"
   }
-}`;
+}
+
+REMEMBER: This resume must be a 10/10 - ATS-optimized, perfectly tailored, using only real information, and 100% ready to submit!`;
 
     // Call Gemini API with retry logic
     let attempts = 0;

@@ -35,12 +35,25 @@ export const useResumeGeneration = () => {
       // Get original resume content from localStorage
       const originalResume = localStorage.getItem('originalResumeContent') || '';
       
+      // Sanitize contact info - remove empty strings
+      const sanitizeContactInfo = (info?: ContactInfo) => {
+        if (!info) return undefined;
+        const cleaned: Partial<ContactInfo> = {};
+        if (info.name?.trim()) cleaned.name = info.name.trim();
+        if (info.phone?.trim()) cleaned.phone = info.phone.trim();
+        if (info.email?.trim()) cleaned.email = info.email.trim();
+        if (info.linkedin?.trim()) cleaned.linkedin = info.linkedin.trim();
+        return Object.keys(cleaned).length > 0 ? cleaned : undefined;
+      };
+      
+      const cleanedContactInfo = sanitizeContactInfo(contactInfo);
+      
       const { data, error } = await supabase.functions.invoke('generate-content', {
         body: {
           job_description: jobDescription,
           original_resume: originalResume,
           template: template,
-          contact_info: contactInfo,
+          contact_info: cleanedContactInfo,
           include_cover_letter: includeCoverLetter
         }
       });
@@ -59,9 +72,24 @@ export const useResumeGeneration = () => {
       return data.resume;
     } catch (error) {
       console.error('Generation failed:', error);
+      
+      // Better error handling with specific messages
+      let errorMessage = "Please try again with a different job description.";
+      
+      if (error && typeof error === 'object' && 'message' in error) {
+        const err = error as any;
+        if (err.message?.includes('Invalid input')) {
+          errorMessage = "Invalid input provided. Please check your contact information and try again.";
+        } else if (err.message?.includes('Rate limit')) {
+          errorMessage = "Too many requests. Please wait a moment and try again.";
+        } else if (err.message?.includes('authentication')) {
+          errorMessage = "Session expired. Please sign in again.";
+        }
+      }
+      
       toast({
         title: "Generation failed",
-        description: "Please try again with a different job description.",
+        description: errorMessage,
         variant: "destructive"
       });
       throw error;
