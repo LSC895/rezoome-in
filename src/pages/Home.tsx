@@ -1,17 +1,43 @@
 import React, { useState } from 'react';
-import { Upload, RefreshCw, Twitter, ArrowLeft } from 'lucide-react';
+import { Upload, RefreshCw, Twitter, ArrowLeft, Loader2 } from 'lucide-react';
 import FileUpload from '@/components/FileUpload';
 import ResumeGenerator from '@/components/ResumeGenerator';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import { SignedIn, SignedOut, UserButton, RedirectToSignIn } from '@clerk/clerk-react';
+import { useHybridAuth } from '@/hooks/useHybridAuth';
 
 const Home = () => {
   const [currentStep, setCurrentStep] = useState('upload');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { isAuthenticated, isLoading: authLoading, error: authError } = useHybridAuth();
+
+  // Show loading state while syncing auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-purple-600" />
+          <p className="text-muted-foreground">Connecting your account...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error if auth sync failed
+  if (authError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <p className="text-destructive">Authentication Error: {authError}</p>
+          <p className="text-sm text-muted-foreground">Please try signing out and back in.</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleFileSelect = async (file: File) => {
     setUploadedFile(file);
