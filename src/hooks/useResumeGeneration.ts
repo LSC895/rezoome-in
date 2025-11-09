@@ -31,13 +31,9 @@ export const useResumeGeneration = () => {
     setIsGenerating(true);
     
     try {
-      // Get original resume content from localStorage
-      const originalResume = localStorage.getItem('originalResumeContent') || '';
-      
       const { data, error } = await supabase.functions.invoke('generate-content', {
         body: {
           job_description: jobDescription,
-          original_resume: originalResume,
           template: template,
           include_cover_letter: includeCoverLetter
         }

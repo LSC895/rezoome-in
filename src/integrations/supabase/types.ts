@@ -50,6 +50,78 @@ export type Database = {
         }
         Relationships: []
       }
+      master_cv_data: {
+        Row: {
+          achievements: Json | null
+          certifications: Json | null
+          created_at: string | null
+          education: Json | null
+          email: string | null
+          full_name: string | null
+          github_url: string | null
+          id: string
+          last_parsed_at: string | null
+          linkedin_url: string | null
+          location: string | null
+          original_filename: string | null
+          parse_status: Database["public"]["Enums"]["cv_parse_status"] | null
+          phone: string | null
+          portfolio_url: string | null
+          professional_summary: string | null
+          projects: Json | null
+          technical_skills: Json | null
+          updated_at: string | null
+          user_id: string
+          work_experience: Json | null
+        }
+        Insert: {
+          achievements?: Json | null
+          certifications?: Json | null
+          created_at?: string | null
+          education?: Json | null
+          email?: string | null
+          full_name?: string | null
+          github_url?: string | null
+          id?: string
+          last_parsed_at?: string | null
+          linkedin_url?: string | null
+          location?: string | null
+          original_filename?: string | null
+          parse_status?: Database["public"]["Enums"]["cv_parse_status"] | null
+          phone?: string | null
+          portfolio_url?: string | null
+          professional_summary?: string | null
+          projects?: Json | null
+          technical_skills?: Json | null
+          updated_at?: string | null
+          user_id: string
+          work_experience?: Json | null
+        }
+        Update: {
+          achievements?: Json | null
+          certifications?: Json | null
+          created_at?: string | null
+          education?: Json | null
+          email?: string | null
+          full_name?: string | null
+          github_url?: string | null
+          id?: string
+          last_parsed_at?: string | null
+          linkedin_url?: string | null
+          location?: string | null
+          original_filename?: string | null
+          parse_status?: Database["public"]["Enums"]["cv_parse_status"] | null
+          phone?: string | null
+          portfolio_url?: string | null
+          professional_summary?: string | null
+          projects?: Json | null
+          technical_skills?: Json | null
+          updated_at?: string | null
+          user_id?: string
+          work_experience?: Json | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -143,6 +215,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      cv_parse_status: "pending" | "parsed" | "reviewed" | "active"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -271,6 +344,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      cv_parse_status: ["pending", "parsed", "reviewed", "active"],
     },
   },
 } as const
