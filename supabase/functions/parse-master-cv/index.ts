@@ -109,7 +109,7 @@ OUTPUT ONLY VALID JSON, NO MARKDOWN OR EXPLANATIONS:`;
     console.log('Calling Gemini API for parsing...');
 
     const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
