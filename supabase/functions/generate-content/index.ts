@@ -150,7 +150,7 @@ Generate the perfect resume for this job. Output ONLY the resume text:`;
     console.log('Calling Gemini API...')
 
     const geminiResponse = await callGeminiWithRetry(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`,
       {
         contents: [{
           parts: [{ text: systemPrompt }]
@@ -210,7 +210,7 @@ Write a compelling cover letter that:
 Output ONLY the cover letter text:`;
 
       const coverLetterResponse = await callGeminiWithRetry(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`,
         {
           contents: [{
             parts: [{ text: coverLetterPrompt }]

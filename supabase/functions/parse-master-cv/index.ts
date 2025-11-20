@@ -167,7 +167,7 @@ OUTPUT ONLY VALID JSON, NO MARKDOWN OR EXPLANATIONS:`;
     console.log('Calling Gemini API for parsing...');
 
     const geminiResponse = await callGeminiWithRetry(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`,
       {
         contents: [{
           parts: [{ text: extractionPrompt }]
