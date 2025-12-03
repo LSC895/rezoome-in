@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, Mail, Linkedin, MapPin, Edit3, Download, Save, X } from 'lucide-react';
+import { Phone, Mail, Linkedin, MapPin, Edit3, Download, Save, X, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -26,6 +26,8 @@ interface FormattedResumeProps {
   onCancel: () => void;
   onDownloadPDF: () => void;
   onDownloadDOCX: () => void;
+  onCopy?: () => void;
+  isAuthenticated?: boolean;
 }
 
 export const FormattedResume: React.FC<FormattedResumeProps> = ({
@@ -37,9 +39,12 @@ export const FormattedResume: React.FC<FormattedResumeProps> = ({
   onSave,
   onCancel,
   onDownloadPDF,
-  onDownloadDOCX
+  onDownloadDOCX,
+  onCopy,
+  isAuthenticated = true
 }) => {
   const [editContent, setEditContent] = React.useState(content);
+  const [copied, setCopied] = React.useState(false);
 
   React.useEffect(() => {
     setEditContent(content);
@@ -47,6 +52,14 @@ export const FormattedResume: React.FC<FormattedResumeProps> = ({
 
   const handleSave = () => {
     onSave(editContent);
+  };
+
+  const handleCopy = () => {
+    if (onCopy) {
+      onCopy();
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   const parseResumeContent = (text: string) => {
@@ -61,7 +74,7 @@ export const FormattedResume: React.FC<FormattedResumeProps> = ({
       // Check if this is a section header (all caps or title case with specific keywords)
       if (trimmedLine && (
         /^[A-Z\s]{3,}$/.test(trimmedLine) || 
-        /^(Professional Summary|Experience|Education|Skills|Work Experience|Certifications|Projects|Achievements)$/i.test(trimmedLine)
+        /^(Professional Summary|Experience|Education|Skills|Work Experience|Certifications|Projects|Achievements|Key Skills|Contact Info|Contact Information)$/i.test(trimmedLine)
       )) {
         // Save previous section
         if (currentSection && currentContent.length > 0) {
@@ -167,26 +180,45 @@ export const FormattedResume: React.FC<FormattedResumeProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <h2 className="font-sora font-bold text-2xl text-foreground">
           Your Tailored Resume
         </h2>
-        <div className="flex space-x-3">
+        <div className="flex flex-wrap gap-2">
           <Button
             onClick={onEditToggle}
             variant="outline"
             size="sm"
           >
             <Edit3 className="mr-2 h-4 w-4" />
-            Edit Resume
+            Edit
           </Button>
+          {onCopy && (
+            <Button
+              onClick={handleCopy}
+              variant="outline"
+              size="sm"
+            >
+              {copied ? (
+                <>
+                  <Check className="mr-2 h-4 w-4" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Copy className="mr-2 h-4 w-4" />
+                  {isAuthenticated ? 'Copy' : 'Sign in to Copy'}
+                </>
+              )}
+            </Button>
+          )}
           <Button
             onClick={onDownloadPDF}
             size="sm"
             className="gradient-purple text-white hover:opacity-90"
           >
             <Download className="mr-2 h-4 w-4" />
-            Download PDF
+            {isAuthenticated ? 'Download PDF' : 'Sign in to Download'}
           </Button>
           <Button
             onClick={onDownloadDOCX}
@@ -194,15 +226,13 @@ export const FormattedResume: React.FC<FormattedResumeProps> = ({
             size="sm"
           >
             <Download className="mr-2 h-4 w-4" />
-            Download DOCX
+            DOCX
           </Button>
         </div>
       </div>
 
       {/* Resume Container */}
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden max-w-4xl mx-auto">
-        {/* Contact info is now extracted by AI and embedded in the resume content */}
-        
         {/* Content Sections */}
         <div className="p-8 space-y-8">
           {sections.map((section, index) => (

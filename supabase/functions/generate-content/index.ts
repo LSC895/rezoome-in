@@ -116,28 +116,47 @@ serve(async (req) => {
       achievements: masterCVData.achievements
     }
 
-    const systemPrompt = `You are an expert resume writer creating ATS-optimized, tailored resumes.
+    // IMPROVED ATS-OPTIMIZED PROMPT
+    const systemPrompt = `You are an expert ATS resume writer who creates job-winning, recruiter-ready resumes.
 
-INPUT: You receive structured master CV data as JSON and a job description.
-OUTPUT: A perfectly tailored resume in text format.
+INPUT: Structured master CV data (JSON) and a target job description.
+OUTPUT: A perfectly tailored, ATS-optimized resume in clean text format.
 
-CRITICAL RULES:
-1. Use EXACT contact information from the provided data (no placeholders ever)
-2. Select the 3-4 most relevant work experiences for this specific job
-3. Reorder achievement bullets to prioritize job-relevant accomplishments
-4. Integrate 15-20 job keywords naturally throughout the resume
-5. Emphasize skills and technologies that match the job requirements
-6. Every bullet must include quantifiable impact (numbers, percentages, $)
-7. Use action verbs that match the job description's language
-8. Standard ATS-friendly section headers: Contact, Summary, Experience, Skills, Education
-9. Keep total length to 1 page for <10 years experience, 2 pages for 10+ years
-10. Output plain text only - no JSON, no markdown, no code blocks
+=== CRITICAL RESUME WRITING RULES ===
+
+1. FORMAT & STRUCTURE:
+   - Use ATS-safe formatting: NO tables, NO icons, NO graphics, NO columns
+   - Clean text-only layout with clear section headers
+   - Standard sections: CONTACT INFO → PROFESSIONAL SUMMARY → KEY SKILLS → WORK EXPERIENCE → PROJECTS → EDUCATION
+
+2. PROFESSIONAL SUMMARY (3-4 lines):
+   - Lead with years of experience + primary expertise
+   - Include 2-3 job-specific keywords naturally
+   - End with a measurable achievement or value proposition
+
+3. WORK EXPERIENCE (Action → Impact → Result):
+   - Start every bullet with a STRONG ACTION VERB (Led, Engineered, Optimized, Delivered, Architected)
+   - QUANTIFY results: percentages, dollar amounts, time saved, users impacted
+   - Format: [Action Verb] + [What you did] + [Measurable Result/Impact]
+   
+   GOOD: "Engineered automated testing framework that reduced QA time by 60%"
+   BAD: "Responsible for testing"
+
+4. KEYWORD OPTIMIZATION:
+   - Extract 15-20 keywords from the job description
+   - Naturally integrate them throughout the resume
+   - Include both acronyms and full terms (AWS and Amazon Web Services)
+
+5. TAILORING:
+   - Select 3-4 most relevant work experiences
+   - Reorder bullets to prioritize job-relevant achievements
+   - Do NOT invent fake experience
 
 TEMPLATE: ${template}
-${template === 'modern' ? '- Clean, minimal design with clear hierarchy' : ''}
+${template === 'modern' ? '- Clean, minimal with clear visual hierarchy' : ''}
 ${template === 'professional' ? '- Traditional format emphasizing career progression' : ''}
-${template === 'creative' ? '- Visually engaging with skills showcase' : ''}
-${template === 'technical' ? '- Technical projects and skills front and center' : ''}
+${template === 'creative' ? '- Slightly more expressive language while maintaining professionalism' : ''}
+${template === 'technical' ? '- Technical projects and skills prominently featured' : ''}
 
 JOB DESCRIPTION:
 ${job_description}
@@ -145,7 +164,7 @@ ${job_description}
 MASTER CV DATA:
 ${JSON.stringify(structuredContext, null, 2)}
 
-Generate the perfect resume for this job. Output ONLY the resume text:`;
+Generate a polished, ATS-optimized resume. Output ONLY the resume text:`;
 
     console.log('Calling Gemini API...')
 

@@ -28,7 +28,7 @@ const Index = () => {
               </Link>
               <SignedOut>
                 <SignInButton mode="modal">
-                  <Button size="sm" className="text-sm bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                  <Button size="sm" variant="outline" className="text-sm">
                     Sign in
                   </Button>
                 </SignInButton>
@@ -64,28 +64,23 @@ const Index = () => {
             </h1>
             
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Upload your master resume and generate tailored versions for any job application.
+              Upload your resume, paste a job description, and get an ATS-optimized tailored version instantly.
+            </p>
+
+            <p className="text-sm text-purple-600 font-medium">
+              ✨ No sign-up required • Free to try • Sign in only to download
             </p>
           </div>
 
           {/* Get Started Section */}
           <div className="max-w-lg mx-auto">
-            <SignedOut>
-              <SignInButton mode="modal">
-                <Button size="lg" className="text-lg px-8 py-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg">
-                  Get Started - Sign In
-                </Button>
-              </SignInButton>
-            </SignedOut>
-            <SignedIn>
-              <Button 
-                size="lg" 
-                className="text-lg px-8 py-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg"
-                onClick={() => navigate('/home')}
-              >
-                Start Creating Resume
-              </Button>
-            </SignedIn>
+            <Button 
+              size="lg" 
+              className="text-lg px-8 py-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg"
+              onClick={() => navigate('/home')}
+            >
+              Get Started - Free
+            </Button>
           </div>
 
           {/* Single Feature */}
@@ -94,8 +89,10 @@ const Index = () => {
               <div className="w-14 h-14 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
                 <Wand2 className="h-7 w-7 text-white" />
               </div>
-              <h3 className="font-semibold text-foreground text-lg">Smart Tailoring</h3>
-              <p className="text-muted-foreground leading-relaxed">Automatically customize your resume for any job description</p>
+              <h3 className="font-semibold text-foreground text-lg">AI-Powered Tailoring</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Our AI analyzes job descriptions and rewrites your resume with ATS-optimized keywords and formatting
+              </p>
             </div>
           </div>
         </div>
@@ -118,15 +115,15 @@ const Index = () => {
                   1
                 </div>
                 <h3 className="font-semibold text-foreground text-lg">Upload</h3>
-                <p className="text-muted-foreground leading-relaxed">Upload your master resume</p>
+                <p className="text-muted-foreground leading-relaxed">Upload your master resume (no sign-up needed)</p>
               </div>
 
               <div className="text-center space-y-4">
                 <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-full flex items-center justify-center mx-auto text-lg font-bold shadow-lg">
                   2
                 </div>
-                <h3 className="font-semibold text-foreground text-lg">Paste Job</h3>
-                <p className="text-muted-foreground leading-relaxed">Paste any job description</p>
+                <h3 className="font-semibold text-foreground text-lg">Paste & Preview</h3>
+                <p className="text-muted-foreground leading-relaxed">Paste job description, see your ATS score & tailored resume</p>
               </div>
 
               <div className="text-center space-y-4">
@@ -134,7 +131,7 @@ const Index = () => {
                   3
                 </div>
                 <h3 className="font-semibold text-foreground text-lg">Download</h3>
-                <p className="text-muted-foreground leading-relaxed">Get your tailored resume</p>
+                <p className="text-muted-foreground leading-relaxed">Sign in to download your optimized PDF</p>
               </div>
             </div>
           </div>

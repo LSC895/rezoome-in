@@ -1,23 +1,25 @@
-
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Wand2, FileText, Download } from 'lucide-react';
+import { ArrowLeft, Wand2, FileText, Download, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useResumeGeneration } from '@/hooks/useResumeGeneration';
-import { useContactExtraction } from '@/hooks/useContactExtraction';
+import { useAnonymousGeneration } from '@/hooks/useAnonymousGeneration';
 import { FormattedResume } from './FormattedResume';
+import { AuthRequiredModal } from './AuthRequiredModal';
 import ChromeExtensionPromo from './ChromeExtensionPromo';
 import LoadingSkeleton from './LoadingSkeleton';
 import TemplateSelector from './TemplateSelector';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import jsPDF from 'jspdf';
+import { useUser } from '@clerk/clerk-react';
 
 interface ResumeGeneratorProps {
   onBack: () => void;
   uploadedFile: File;
+  cvData?: any;
 }
 
-const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({ onBack, uploadedFile }) => {
+const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({ onBack, uploadedFile, cvData }) => {
   const [jobDescription, setJobDescription] = useState('');
   const [editedResumeContent, setEditedResumeContent] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState<'modern' | 'classic' | 'creative'>('modern');
@@ -27,87 +29,27 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({ onBack, uploadedFile 
   const [loadingStatus, setLoadingStatus] = useState('');
   const [isEditingResume, setIsEditingResume] = useState(false);
   const [lastCallTime, setLastCallTime] = useState(0);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalAction, setAuthModalAction] = useState<'download' | 'copy' | 'generate_limit'>('download');
+  const [copied, setCopied] = useState(false);
   
-  const { generateResume, isGenerating, generatedResume } = useResumeGeneration();
+  const { user } = useUser();
+  const isAuthenticated = !!user;
   
-  const MIN_CALL_INTERVAL = 3000; // 3 seconds between calls
-
-  // Store the uploaded file content for generation
-  useEffect(() => {
-    let isCancelled = false;
-    const parseKey = `${uploadedFile.name}-${uploadedFile.size}-${uploadedFile.lastModified}`;
-
-    const applyContent = (text: string) => {
-      if (isCancelled) return;
-      localStorage.setItem('originalResumeContent', text);
-      sessionStorage.setItem(`parsed:${parseKey}`, '1');
-      console.log(`Stored content for ${uploadedFile.name}: ${text.length} characters`);
-    };
-
-    const parse = async () => {
-      try {
-        // Use cache when available to avoid repeated work and network calls
-        if (sessionStorage.getItem(`parsed:${parseKey}`)) {
-          const cached = localStorage.getItem('originalResumeContent');
-          if (cached) {
-            console.log('Using cached parsed content');
-            applyContent(cached);
-            return;
-          }
-        }
-
-        const ext = uploadedFile.name.toLowerCase().split('.').pop() || '';
-
-        // For plain text files, parse on the client only
-        if (ext === 'txt' || ext === 'md' || ext === 'csv') {
-          const text = await uploadedFile.text();
-          applyContent(text);
-          return;
-        }
-
-        // IMPORTANT: Avoid calling edge functions due to exceeded quota.
-        // Provide a graceful local fallback for PDFs and other formats for now.
-        const fallbackContent = `Professional Resume (${uploadedFile.name})
-
-Please note: Unable to parse the uploaded file automatically due to usage limits. This is a template that should be customized with your actual information.
-
-PROFESSIONAL SUMMARY
-[Your professional summary here]
-
-WORK EXPERIENCE
-[Your work experience here]
-
-EDUCATION
-[Your education here]
-
-SKILLS
-[Your skills here]`;
-        applyContent(fallbackContent);
-      } catch (error) {
-        console.error('Failed to parse file, using fallback:', error);
-        const fallbackContent = `Professional Resume (${uploadedFile.name})
-
-Please note: Unable to parse the uploaded file automatically. This is a template that should be customized with your actual information.
-
-PROFESSIONAL SUMMARY
-[Your professional summary here]
-
-WORK EXPERIENCE
-[Your work experience here]
-
-EDUCATION
-[Your education here]
-
-SKILLS
-[Your skills here]`;
-        applyContent(fallbackContent);
-      }
-    };
-
-    parse();
-    return () => { isCancelled = true; };
-  }, [uploadedFile]);
-
+  // Use appropriate hook based on auth status
+  const { generateResume, isGenerating: isGeneratingAuth, generatedResume: generatedResumeAuth } = useResumeGeneration();
+  const { 
+    generateResumeAnonymous, 
+    isGenerating: isGeneratingAnon, 
+    generatedResume: generatedResumeAnon,
+    canGenerateAnonymously,
+    getRemainingGenerations
+  } = useAnonymousGeneration();
+  
+  const isGenerating = isAuthenticated ? isGeneratingAuth : isGeneratingAnon;
+  const generatedResume = isAuthenticated ? generatedResumeAuth : generatedResumeAnon;
+  
+  const MIN_CALL_INTERVAL = 3000;
 
   // Update edited content when new resume is generated
   useEffect(() => {
@@ -128,16 +70,16 @@ SKILLS
       const interval = setInterval(() => {
         setLoadingProgress(prev => {
           if (prev < 30) {
-            setLoadingStatus('Parsing your master resume...');
+            setLoadingStatus('Extracting key requirements...');
             return prev + 2;
           } else if (prev < 60) {
-            setLoadingStatus('Tailoring content with AI...');
+            setLoadingStatus('Tailoring your resume with AI...');
             return prev + 1;
           } else if (prev < 85) {
             setLoadingStatus('Optimizing for ATS compatibility...');
             return prev + 0.5;
           } else if (prev < 95) {
-            setLoadingStatus('Finalizing your tailored resume...');
+            setLoadingStatus('Adding action-driven bullet points...');
             return prev + 0.2;
           }
           return prev;
@@ -158,10 +100,22 @@ SKILLS
       return;
     }
     
+    // Check daily limit for anonymous users
+    if (!isAuthenticated && !canGenerateAnonymously()) {
+      setAuthModalAction('generate_limit');
+      setAuthModalOpen(true);
+      return;
+    }
+    
     setLastCallTime(now);
     
     try {
-      await generateResume(jobDescription, selectedTemplate, includeCoverLetter);
+      if (isAuthenticated) {
+        await generateResume(jobDescription, selectedTemplate, includeCoverLetter);
+      } else {
+        // Use anonymous generation with cvData
+        await generateResumeAnonymous(cvData, jobDescription, selectedTemplate, includeCoverLetter);
+      }
     } catch (error) {
       console.error('Failed to generate resume:', error);
     }
@@ -181,16 +135,16 @@ SKILLS
   };
 
   const handleDownloadPDF = () => {
+    if (!isAuthenticated) {
+      setAuthModalAction('download');
+      setAuthModalOpen(true);
+      return;
+    }
+    
     try {
       const doc = new jsPDF();
-      
-      // Split text into lines (jsPDF max width ~180mm)
       const lines = doc.splitTextToSize(editedResumeContent || generatedResume?.content || '', 180);
-      
-      // Add text to PDF
       doc.text(lines, 15, 15);
-      
-      // Download
       const filename = `tailored-resume-${selectedTemplate}-${new Date().toISOString().split('T')[0]}.pdf`;
       doc.save(filename);
       toast.success('PDF downloaded!');
@@ -201,8 +155,12 @@ SKILLS
   };
 
   const handleDownloadDOCX = () => {
-    // For MVP, download as .txt with proper formatting
-    // Real DOCX generation needs docx library (add later if needed)
+    if (!isAuthenticated) {
+      setAuthModalAction('download');
+      setAuthModalOpen(true);
+      return;
+    }
+    
     const blob = new Blob([editedResumeContent || generatedResume?.content || ''], 
       { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -216,7 +174,26 @@ SKILLS
     toast.success('Resume downloaded!');
   };
 
+  const handleCopyResume = () => {
+    if (!isAuthenticated) {
+      setAuthModalAction('copy');
+      setAuthModalOpen(true);
+      return;
+    }
+    
+    navigator.clipboard.writeText(editedResumeContent || generatedResume?.content || '');
+    setCopied(true);
+    toast.success('Resume copied to clipboard!');
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const handleDownloadCoverLetter = () => {
+    if (!isAuthenticated) {
+      setAuthModalAction('download');
+      setAuthModalOpen(true);
+      return;
+    }
+    
     if (!generatedCoverLetter) return;
     const blob = new Blob([generatedCoverLetter], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -232,8 +209,15 @@ SKILLS
 
   return (
     <div className="space-y-8">
+      {/* Auth Modal */}
+      <AuthRequiredModal 
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        action={authModalAction}
+      />
+
       {/* Header */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center justify-between">
         <Button
           variant="ghost"
           size="sm"
@@ -243,6 +227,15 @@ SKILLS
           <ArrowLeft className="h-5 w-5 mr-2" />
           Upload New Resume
         </Button>
+        
+        {!isAuthenticated && (
+          <div className="text-sm text-muted-foreground">
+            {getRemainingGenerations() > 0 
+              ? `${getRemainingGenerations()} free generation left today`
+              : 'Daily limit reached - Sign in for more'
+            }
+          </div>
+        )}
       </div>
 
       <div className="text-center space-y-4">
@@ -250,7 +243,7 @@ SKILLS
           Generate Job-Specific Resume
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Paste any job description and get a tailored resume specifically for that role
+          Paste any job description and get an ATS-optimized resume tailored for that role
         </p>
         <div className="inline-flex items-center space-x-2 bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 px-4 py-2 rounded-full text-sm">
           <span className="font-medium">✓ Resume uploaded: {uploadedFile.name}</span>
@@ -339,6 +332,21 @@ We are looking for a Senior Software Engineer with 3+ years of experience in Rea
       {/* Generated Resume Preview */}
       {generatedResume && !isGenerating && (
         <div className="space-y-6">
+          {/* ATS Score Display */}
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-200 dark:border-green-800 rounded-2xl p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-bold text-lg text-green-800 dark:text-green-200">ATS Compatibility Score</h3>
+                  <p className="text-sm text-green-700 dark:text-green-300">Your resume is optimized for applicant tracking systems</p>
+                </div>
+                <div className="text-4xl font-bold text-green-600 dark:text-green-400">
+                  {generatedResume.ats_score}%
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="max-w-5xl mx-auto animate-scale-in">
             <FormattedResume
               content={editedResumeContent}
@@ -349,13 +357,20 @@ We are looking for a Senior Software Engineer with 3+ years of experience in Rea
               onCancel={handleCancelEdit}
               onDownloadPDF={handleDownloadPDF}
               onDownloadDOCX={handleDownloadDOCX}
+              onCopy={handleCopyResume}
+              isAuthenticated={isAuthenticated}
             />
 
             {!isEditingResume && (
               <div className="text-center space-y-4 mt-6">
                 <p className="text-muted-foreground">
-                  This resume has been optimized with keywords from the job description and tailored to match the specific requirements using the {selectedTemplate} template.
+                  This resume has been ATS-optimized with keywords from the job description and tailored to match the specific requirements.
                 </p>
+                {!isAuthenticated && (
+                  <p className="text-sm text-purple-600 font-medium">
+                    ✨ Sign in free to download your optimized resume
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -375,7 +390,7 @@ We are looking for a Senior Software Engineer with 3+ years of experience in Rea
                   className="flex items-center"
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  Download
+                  {isAuthenticated ? 'Download' : 'Sign in to Download'}
                 </Button>
               </div>
               

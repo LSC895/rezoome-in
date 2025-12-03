@@ -3,6 +3,9 @@ project_id = "fsboucrtgxrpnmebrrph"
 [functions.generate-content]
 verify_jwt = true
 
+[functions.generate-preview]
+verify_jwt = false
+
 [functions.analyze-resume]
 verify_jwt = true
 
