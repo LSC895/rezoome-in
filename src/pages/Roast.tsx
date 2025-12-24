@@ -135,15 +135,14 @@ const Roast = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border/50 bg-card/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <Link to="/" className="text-xl font-bold fire-text flex items-center gap-2">
-              <Flame className="h-6 w-6 text-primary" />
+            <Link to="/" className="text-xl font-bold text-foreground">
               Rezoome
             </Link>
             <Button variant="ghost" size="sm" className="text-muted-foreground">
-              Why we roast? 🤔
+              Why we roast?
             </Button>
           </div>
         </div>
@@ -181,12 +180,12 @@ const Roast = () => {
           <div className="space-y-8 animate-fade-in-up">
             {/* Hero */}
             <div className="text-center space-y-4 pt-8">
-              <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-                Before you apply,{' '}
-                <span className="fire-text">get roasted 🔥</span>
+              <p className="text-sm text-muted-foreground">We listed and we Judge (😈)</p>
+              <h1 className="text-3xl md:text-4xl leading-tight">
+                One resume for every job
               </h1>
-              <p className="text-lg text-muted-foreground max-w-md mx-auto">
-                Find out why recruiters are ghosting you. Brutal honesty, zero BS.
+              <p className="text-muted-foreground max-w-md mx-auto">
+                to make u built a resume
               </p>
             </div>
 

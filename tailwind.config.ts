@@ -2,13 +2,14 @@
 import type { Config } from "tailwindcss";
 
 export default {
-	darkMode: ["class"],
-	content: [
-		"./pages/**/*.{ts,tsx}",
-		"./components/**/*.{ts,tsx}",
-		"./app/**/*.{ts,tsx}",
-		"./src/**/*.{ts,tsx}",
-	],
+  darkMode: ["class"],
+  content: [
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+  ],
+  safelist: ['font-sora', 'font-mono'],
 	prefix: "",
 	theme: {
 		container: {
@@ -20,8 +21,8 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'sora': ['Sora', 'sans-serif'],
-				'inter': ['Inter', 'sans-serif'],
+				'sora': ['Sora', 'system-ui', 'sans-serif'],
+				'mono': ['Space Mono', 'monospace'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',

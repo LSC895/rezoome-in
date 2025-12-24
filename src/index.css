@@ -4,81 +4,77 @@
 
 @layer base {
   :root {
-    --background: 30 20% 98%;
-    --foreground: 20 10% 10%;
+    --background: 50 30% 97%;
+    --foreground: 30 15% 12%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 20 10% 10%;
+    --card: 45 25% 96%;
+    --card-foreground: 30 15% 12%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 20 10% 10%;
+    --popover: 45 25% 96%;
+    --popover-foreground: 30 15% 12%;
 
-    --primary: 24 95% 53%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 30 80% 45%;
+    --primary-foreground: 45 30% 98%;
 
-    --secondary: 45 93% 58%;
-    --secondary-foreground: 20 10% 10%;
+    --secondary: 200 25% 30%;
+    --secondary-foreground: 45 30% 98%;
 
-    --muted: 30 15% 93%;
-    --muted-foreground: 20 5% 45%;
+    --muted: 45 15% 90%;
+    --muted-foreground: 30 10% 40%;
 
-    --accent: 350 89% 60%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 15 70% 50%;
+    --accent-foreground: 45 30% 98%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 65% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    --success: 142 76% 36%;
+    --success: 150 60% 35%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 45 93% 47%;
-    --warning-foreground: 20 10% 10%;
+    --warning: 40 90% 50%;
+    --warning-foreground: 30 15% 12%;
 
-    --border: 30 15% 88%;
-    --input: 30 15% 88%;
-    --ring: 24 95% 53%;
+    --border: 40 20% 85%;
+    --input: 40 20% 85%;
+    --ring: 30 80% 45%;
 
-    --radius: 0.75rem;
-
-    /* Custom fire gradient */
-    --fire-start: 24 95% 53%;
-    --fire-end: 350 89% 60%;
+    --radius: 0.625rem;
   }
 
   .dark {
-    --background: 20 10% 8%;
-    --foreground: 30 20% 98%;
+    --background: 30 15% 8%;
+    --foreground: 45 20% 95%;
 
-    --card: 20 10% 12%;
-    --card-foreground: 30 20% 98%;
+    --card: 30 15% 12%;
+    --card-foreground: 45 20% 95%;
 
-    --popover: 20 10% 12%;
-    --popover-foreground: 30 20% 98%;
+    --popover: 30 15% 12%;
+    --popover-foreground: 45 20% 95%;
 
-    --primary: 24 95% 53%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 35 85% 50%;
+    --primary-foreground: 30 15% 8%;
 
-    --secondary: 45 93% 58%;
-    --secondary-foreground: 20 10% 10%;
+    --secondary: 200 20% 60%;
+    --secondary-foreground: 30 15% 8%;
 
-    --muted: 20 10% 18%;
-    --muted-foreground: 30 15% 65%;
+    --muted: 30 15% 18%;
+    --muted-foreground: 40 15% 60%;
 
-    --accent: 350 89% 60%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 15 70% 55%;
+    --accent-foreground: 30 15% 8%;
 
     --destructive: 0 62% 51%;
     --destructive-foreground: 0 0% 98%;
 
-    --success: 142 76% 36%;
+    --success: 150 60% 40%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 45 93% 47%;
-    --warning-foreground: 20 10% 10%;
+    --warning: 40 90% 50%;
+    --warning-foreground: 30 15% 12%;
 
-    --border: 20 10% 20%;
-    --input: 20 10% 20%;
-    --ring: 24 95% 53%;
+    --border: 30 15% 20%;
+    --input: 30 15% 20%;
+    --ring: 35 85% 50%;
   }
 }
 
@@ -89,13 +85,16 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Sora', system-ui, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
     line-height: 1.6;
   }
 
   h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Mono', monospace;
     line-height: 1.2;
     font-weight: 700;
+    letter-spacing: -0.02em;
   }
 }
 
@@ -109,7 +108,7 @@ html {
   @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
 }
 
-/* Fire gradient */
+/* Warm gradient */
 .fire-gradient {
   background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
 }
@@ -128,14 +127,14 @@ html {
 
 .card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px -5px hsl(var(--primary) / 0.15);
+  box-shadow: 0 8px 16px -4px hsl(var(--primary) / 0.12);
 }
 
 /* Animations */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -145,34 +144,34 @@ html {
 
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
 }
 
 @keyframes pulse-fire {
   0%, 100% { 
-    box-shadow: 0 0 20px hsl(var(--primary) / 0.4);
+    box-shadow: 0 0 16px hsl(var(--primary) / 0.3);
   }
   50% { 
-    box-shadow: 0 0 40px hsl(var(--accent) / 0.6);
+    box-shadow: 0 0 28px hsl(var(--accent) / 0.4);
   }
 }
 
 @keyframes bounce-subtle {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+  50% { transform: translateY(-4px); }
 }
 
 .animate-fade-in-up {
-  animation: fadeInUp 0.5s ease-out;
+  animation: fadeInUp 0.4s ease-out;
 }
 
 .animate-shake {
-  animation: shake 0.5s ease-in-out;
+  animation: shake 0.4s ease-in-out;
 }
 
 .animate-pulse-fire {
-  animation: pulse-fire 2s ease-in-out infinite;
+  animation: pulse-fire 2.5s ease-in-out infinite;
 }
 
 .animate-bounce-subtle {
@@ -181,7 +180,7 @@ html {
 
 /* Blur effect for locked content */
 .blur-locked {
-  filter: blur(6px);
+  filter: blur(5px);
   user-select: none;
   pointer-events: none;
 }
@@ -196,7 +195,7 @@ html {
 
 /* Button hover glow */
 .btn-glow:hover {
-  box-shadow: 0 0 30px hsl(var(--primary) / 0.5);
+  box-shadow: 0 0 24px hsl(var(--primary) / 0.35);
 }
 
 /* Fun underline */
@@ -210,12 +209,20 @@ html {
   bottom: -2px;
   left: 0;
   width: 100%;
-  height: 3px;
+  height: 2px;
   background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)));
   transform: scaleX(0);
-  transition: transform 0.3s ease;
+  transition: transform 0.25s ease;
 }
 
 .fun-underline:hover::after {
   transform: scaleX(1);
+}
+
+/* Warm paper texture feel */
+.paper-bg {
+  background-color: hsl(var(--card));
+  background-image: 
+    radial-gradient(circle at 25% 25%, hsl(var(--primary) / 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, hsl(var(--accent) / 0.03) 0%, transparent 50%);
 }

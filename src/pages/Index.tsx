@@ -1,5 +1,5 @@
 import React from 'react';
-import { Wand2, Flame, ArrowRight } from 'lucide-react';
+import { Flame, ArrowRight, Eye, Zap, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
 import { SignInButton, UserButton, SignedIn, SignedOut } from '@clerk/clerk-react';
@@ -8,13 +8,13 @@ const Index = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-              Rezoome 🔥
+            <div className="text-xl font-bold text-foreground">
+              Rezoome
             </div>
             <div className="flex items-center gap-4">
               <Link to="/pricing">
@@ -31,159 +31,155 @@ const Index = () => {
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Hero Section */}
-      <div className="container mx-auto px-6 py-20">
-        <div className="max-w-4xl mx-auto text-center space-y-12">
+      <section className="container mx-auto px-6 py-16 md:py-24">
+        <div className="max-w-3xl mx-auto text-center space-y-10">
+          
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-muted text-muted-foreground rounded-full text-sm">
+            <Eye className="h-4 w-4" />
+            We listed and we Judge (😈)
+          </div>
           
           {/* Main Headline */}
-          <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
-              <Flame className="h-4 w-4" />
-              Brutally honest resume feedback
-            </div>
-            
-            <h1 className="text-6xl md:text-7xl font-bold leading-tight">
-              <span className="bg-gradient-to-r from-orange-600 via-red-600 to-pink-600 bg-clip-text text-transparent">
-                Get Roasted.
-              </span>
-              <br />
-              <span className="text-foreground">Get Hired.</span>
-            </h1>
-            
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Find out why you're not getting callbacks. Our AI brutally analyzes your resume against any job description and tells you the hard truth.
-            </p>
+          <h1 className="text-4xl md:text-6xl leading-tight tracking-tight">
+            One resume for every job
+          </h1>
+          
+          <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+            to make u built a resume
+          </p>
 
-            <p className="text-sm text-orange-600 font-medium">
-              🔥 Free roast • No sign-up required • Get it fixed instantly
-            </p>
-          </div>
+          <p className="text-sm text-primary font-medium">
+            Free roast • No sign-up • Get it fixed instantly
+          </p>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
-              className="text-lg px-8 py-6 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 shadow-lg"
-              onClick={() => navigate('/roast')}
-            >
-              <Flame className="h-5 w-5 mr-2" />
-              Roast My Resume
-              <ArrowRight className="h-5 w-5 ml-2" />
-            </Button>
-          </div>
-
-          {/* What You Get */}
-          <div className="grid md:grid-cols-3 gap-8 pt-12">
-            <div className="group text-center space-y-4 p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:border-orange-200 transition-all">
-              <div className="w-14 h-14 bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto">
-                <span className="text-2xl">🎯</span>
-              </div>
-              <h3 className="font-semibold text-lg">Shortlist Probability</h3>
-              <p className="text-muted-foreground">
-                Know your real chances of getting shortlisted with a realistic 0-100% score
-              </p>
-            </div>
-
-            <div className="group text-center space-y-4 p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:border-orange-200 transition-all">
-              <div className="w-14 h-14 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-2xl flex items-center justify-center mx-auto">
-                <span className="text-2xl">❌</span>
-              </div>
-              <h3 className="font-semibold text-lg">Top 3 Rejection Reasons</h3>
-              <p className="text-muted-foreground">
-                Discover exactly why recruiters are passing on your resume
-              </p>
-            </div>
-
-            <div className="group text-center space-y-4 p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:border-orange-200 transition-all">
-              <div className="w-14 h-14 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto">
-                <span className="text-2xl">✨</span>
-              </div>
-              <h3 className="font-semibold text-lg">One-Click Fix</h3>
-              <p className="text-muted-foreground">
-                Get a complete ATS-optimized rewrite tailored to the job (1 free/day)
-              </p>
-            </div>
-          </div>
+          {/* CTA */}
+          <Button 
+            size="lg" 
+            className="text-base px-8 py-6 fire-gradient text-primary-foreground"
+            onClick={() => navigate('/roast')}
+          >
+            <Flame className="h-5 w-5 mr-2" />
+            Roast My Resume
+            <ArrowRight className="h-5 w-5 ml-2" />
+          </Button>
         </div>
-      </div>
+      </section>
 
-      {/* How It Works */}
-      <div className="bg-muted/30 py-20">
+      {/* What You Get */}
+      <section className="bg-muted/40 py-16">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto">
-            <div className="text-center space-y-4 mb-16">
-              <h2 className="text-4xl font-bold">How it works</h2>
-              <p className="text-muted-foreground text-lg">Simple process, brutal results</p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-12">
-              <div className="text-center space-y-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-full flex items-center justify-center mx-auto text-lg font-bold shadow-lg">
-                  1
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="bg-card p-6 rounded-xl border border-border space-y-3">
+                <div className="w-10 h-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center">
+                  <Target className="h-5 w-5" />
                 </div>
-                <h3 className="font-semibold text-lg">Upload + Paste</h3>
-                <p className="text-muted-foreground">Upload your resume and paste the job description</p>
+                <h3 className="font-semibold">Shortlist %</h3>
+                <p className="text-sm text-muted-foreground">
+                  Know your real chances of getting shortlisted with a 0-100% score
+                </p>
               </div>
 
-              <div className="text-center space-y-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-full flex items-center justify-center mx-auto text-lg font-bold shadow-lg">
-                  2
+              <div className="bg-card p-6 rounded-xl border border-border space-y-3">
+                <div className="w-10 h-10 bg-accent/10 text-accent rounded-lg flex items-center justify-center">
+                  <Eye className="h-5 w-5" />
                 </div>
-                <h3 className="font-semibold text-lg">Get Roasted</h3>
-                <p className="text-muted-foreground">See your shortlist probability, ATS score, and rejection reasons</p>
+                <h3 className="font-semibold">Rejection Reasons</h3>
+                <p className="text-sm text-muted-foreground">
+                  See exactly why recruiters are passing on your resume
+                </p>
               </div>
 
-              <div className="text-center space-y-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-full flex items-center justify-center mx-auto text-lg font-bold shadow-lg">
-                  3
+              <div className="bg-card p-6 rounded-xl border border-border space-y-3">
+                <div className="w-10 h-10 bg-success/10 text-success rounded-lg flex items-center justify-center">
+                  <Zap className="h-5 w-5" />
                 </div>
-                <h3 className="font-semibold text-lg">Get Fixed</h3>
-                <p className="text-muted-foreground">One-click generates a job-tailored, ATS-optimized resume</p>
+                <h3 className="font-semibold">One-Click Fix</h3>
+                <p className="text-sm text-muted-foreground">
+                  Get a job-tailored, ATS-optimized rewrite (1 free/day)
+                </p>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Pricing Preview */}
-      <div className="py-20">
+      {/* How It Works */}
+      <section className="py-16">
+        <div className="container mx-auto px-6">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-3xl text-center mb-12">How it works</h2>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="text-center space-y-3">
+                <div className="w-10 h-10 bg-secondary text-secondary-foreground rounded-full flex items-center justify-center mx-auto text-sm font-bold">
+                  1
+                </div>
+                <h3 className="font-semibold">Upload + Paste</h3>
+                <p className="text-sm text-muted-foreground">Upload your resume and paste the job description</p>
+              </div>
+
+              <div className="text-center space-y-3">
+                <div className="w-10 h-10 bg-secondary text-secondary-foreground rounded-full flex items-center justify-center mx-auto text-sm font-bold">
+                  2
+                </div>
+                <h3 className="font-semibold">Get Roasted</h3>
+                <p className="text-sm text-muted-foreground">See your shortlist probability and rejection reasons</p>
+              </div>
+
+              <div className="text-center space-y-3">
+                <div className="w-10 h-10 bg-secondary text-secondary-foreground rounded-full flex items-center justify-center mx-auto text-sm font-bold">
+                  3
+                </div>
+                <h3 className="font-semibold">Get Fixed</h3>
+                <p className="text-sm text-muted-foreground">One-click generates a job-tailored resume</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section className="bg-muted/40 py-16">
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto text-center space-y-8">
-            <h2 className="text-4xl font-bold">Simple Pricing</h2>
+            <h2 className="text-3xl">Simple Pricing</h2>
             
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="bg-card border rounded-2xl p-6 space-y-3">
-                <p className="text-sm text-muted-foreground uppercase tracking-wide">Free</p>
-                <p className="text-3xl font-bold">$0</p>
-                <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>✓ Unlimited roasts</li>
-                  <li>✓ 1 fix per day</li>
-                  <li>✓ TXT download</li>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="bg-card border border-border rounded-xl p-5 space-y-3 text-left">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Free</p>
+                <p className="text-2xl font-bold">$0</p>
+                <ul className="text-sm text-muted-foreground space-y-1.5">
+                  <li>• Unlimited roasts</li>
+                  <li>• 1 fix per day</li>
+                  <li>• TXT download</li>
                 </ul>
               </div>
               
-              <div className="bg-card border-2 border-orange-500 rounded-2xl p-6 space-y-3 relative">
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="bg-orange-500 text-white text-xs px-3 py-1 rounded-full">Popular</span>
+              <div className="bg-card border-2 border-primary rounded-xl p-5 space-y-3 text-left relative">
+                <div className="absolute -top-2.5 left-4">
+                  <span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">Popular</span>
                 </div>
-                <p className="text-sm text-muted-foreground uppercase tracking-wide">24-Hour Pass</p>
-                <p className="text-3xl font-bold">$3</p>
-                <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>✓ Unlimited roasts</li>
-                  <li>✓ Unlimited fixes</li>
-                  <li>✓ TXT download</li>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">24-Hour Pass</p>
+                <p className="text-2xl font-bold">$3</p>
+                <ul className="text-sm text-muted-foreground space-y-1.5">
+                  <li>• Unlimited roasts</li>
+                  <li>• Unlimited fixes</li>
+                  <li>• TXT download</li>
                 </ul>
               </div>
               
-              <div className="bg-card border rounded-2xl p-6 space-y-3">
-                <p className="text-sm text-muted-foreground uppercase tracking-wide">Monthly</p>
-                <p className="text-3xl font-bold">$9<span className="text-lg font-normal">/mo</span></p>
-                <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>✓ Everything in Pass</li>
-                  <li>✓ PDF downloads</li>
-                  <li>✓ Cover letters</li>
+              <div className="bg-card border border-border rounded-xl p-5 space-y-3 text-left">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Monthly</p>
+                <p className="text-2xl font-bold">$9<span className="text-base font-normal">/mo</span></p>
+                <ul className="text-sm text-muted-foreground space-y-1.5">
+                  <li>• Everything in Pass</li>
+                  <li>• PDF downloads</li>
+                  <li>• Cover letters</li>
                 </ul>
               </div>
             </div>
@@ -191,29 +187,26 @@ const Index = () => {
             <Button 
               size="lg"
               onClick={() => navigate('/roast')}
-              className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700"
+              className="fire-gradient text-primary-foreground"
             >
               Start Free Roast
             </Button>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Footer */}
-      <div className="border-t border-border/50 py-12 bg-background/80">
+      <footer className="border-t border-border py-8 bg-card">
         <div className="container mx-auto px-6">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-muted-foreground">
-              © 2024 Rezoome. All rights reserved.
-            </div>
-            <div className="flex space-x-6">
-              <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Privacy</a>
-              <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Terms</a>
-              <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Support</a>
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <span>© 2024 Rezoome</span>
+            <div className="flex gap-6">
+              <a href="#" className="hover:text-foreground">Privacy</a>
+              <a href="#" className="hover:text-foreground">Terms</a>
             </div>
           </div>
         </div>
-      </div>
+      </footer>
     </div>
   );
 };
