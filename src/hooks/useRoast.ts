@@ -33,19 +33,29 @@ export interface RoastResult {
   overall_roast: string;
 }
 
+export type RoastType = 'friendly' | 'hr' | 'senior' | 'dark';
+export type Language = 'english' | 'hinglish';
+
 export const useRoast = () => {
   const [isRoasting, setIsRoasting] = useState(false);
   const [roastResult, setRoastResult] = useState<RoastResult | null>(null);
   const { toast } = useToast();
 
-  const roastResume = async (resumeContent: string, jobDescription: string): Promise<RoastResult | null> => {
+  const roastResume = async (
+    resumeContent: string, 
+    jobDescription: string,
+    roastType: RoastType = 'senior',
+    language: Language = 'english'
+  ): Promise<RoastResult | null> => {
     setIsRoasting(true);
     
     try {
       const { data, error } = await supabase.functions.invoke('roast-resume', {
         body: {
           resume_content: resumeContent,
-          job_description: jobDescription
+          job_description: jobDescription,
+          roast_type: roastType,
+          language: language
         }
       });
 
@@ -63,8 +73,8 @@ export const useRoast = () => {
     } catch (error: any) {
       console.error('Roast error:', error);
       toast({
-        title: "Roast Failed",
-        description: error.message || "Something went wrong. Please try again.",
+        title: "Roast Failed 😢",
+        description: error.message || "Something went wrong. Try again!",
         variant: "destructive"
       });
       return null;

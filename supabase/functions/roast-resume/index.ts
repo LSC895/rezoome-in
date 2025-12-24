@@ -10,11 +10,13 @@ const corsHeaders = {
 const roastResumeSchema = z.object({
   resume_content: z.string().min(10).max(100000),
   job_description: z.string().min(10).max(50000),
+  roast_type: z.enum(['friendly', 'hr', 'senior', 'dark']).default('senior'),
+  language: z.enum(['english', 'hinglish']).default('english'),
 })
 
 // Rate limiting
 const requestCounts = new Map<string, { count: number; timestamp: number }>()
-const RATE_LIMIT = 10 // Max 10 roasts per minute
+const RATE_LIMIT = 10
 const RATE_WINDOW = 60000
 
 function checkRateLimit(clientId: string): boolean {
@@ -68,12 +70,26 @@ async function callGeminiWithRetry(url: string, body: any, maxRetries = 3): Prom
   throw lastError || new Error('Failed after retries')
 }
 
+function getToneInstructions(roastType: string, language: string): string {
+  const tones: Record<string, string> = {
+    friendly: `TONE: Be supportive and encouraging, like a helpful friend. Still be honest about issues, but frame them positively. Use phrases like "You're on the right track, but..." and "One thing that could help is..."`,
+    hr: `TONE: Be professional and formal, like an actual HR recruiter reviewing resumes. Use corporate language. Be direct about what works and what doesn't from a hiring perspective.`,
+    senior: `TONE: Be brutally honest like a senior developer or tech lead doing a code review. No sugarcoating. Call out BS directly. Use phrases like "Look, here's the problem..." and "This won't fly because..."`,
+    dark: `TONE: Be savage and roast mercilessly. Use dark humor. Be harsh but still useful. Think of it like a comedy roast where the goal is brutal honesty wrapped in savage humor. No personal attacks, just brutal truth about the resume.`
+  }
+
+  const langInstructions = language === 'hinglish' 
+    ? `LANGUAGE: Write in Hinglish (mix of Hindi and English). Use phrases like "Bhai, ye dekh...", "Yaar, problem ye hai ki...", "Seedha baat - ". Keep it natural and conversational like how young Indians speak.`
+    : `LANGUAGE: Write in clear, conversational English.`
+
+  return `${tones[roastType] || tones.senior}\n\n${langInstructions}`
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
-  // Rate limiting
   const clientId = req.headers.get('x-forwarded-for') || 'unknown'
   if (!checkRateLimit(clientId)) {
     console.warn(`Rate limit exceeded for client: ${clientId}`)
@@ -85,16 +101,20 @@ serve(async (req) => {
 
   try {
     const rawBody = await req.json()
-    const { resume_content, job_description } = roastResumeSchema.parse(rawBody)
+    const { resume_content, job_description, roast_type, language } = roastResumeSchema.parse(rawBody)
 
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY')
     if (!geminiApiKey) {
       throw new Error('Gemini API key not configured')
     }
 
-    console.log('Starting brutal resume roast analysis...')
+    console.log(`Starting resume roast - Type: ${roast_type}, Language: ${language}`)
 
-    const roastPrompt = `You are a brutally honest resume reviewer who tells job seekers the HARD TRUTH about why they're not getting interviews. Your job is to roast their resume against the job description and give them a reality check.
+    const toneInstructions = getToneInstructions(roast_type, language)
+
+    const roastPrompt = `You are a resume reviewer who tells job seekers the TRUTH about why they're not getting interviews.
+
+${toneInstructions}
 
 RESUME CONTENT:
 ${resume_content}
@@ -107,7 +127,7 @@ Analyze this resume against the job description and return a JSON response in th
 {
   "shortlist_probability": <number 0-100, be REALISTIC - most resumes score 20-60>,
   "verdict": "<APPLY | DON'T APPLY | MAYBE>",
-  "verdict_reason": "<one brutal sentence explaining your verdict>",
+  "verdict_reason": "<one sentence explaining your verdict in the specified tone>",
   "top_3_rejection_reasons": [
     "<most likely reason recruiter will reject this resume>",
     "<second most likely reason>",
@@ -115,54 +135,53 @@ Analyze this resume against the job description and return a JSON response in th
   ],
   "ats_score": <number 0-100>,
   "keyword_match_percent": <number 0-100>,
-  "keyword_gaps": ["<missing keyword 1>", "<missing keyword 2>", ...],
+  "keyword_gaps": ["<missing keyword 1>", "<missing keyword 2>", ...up to 10],
   "sections": {
     "summary": {
       "score": <0-100>,
-      "roast": "<brutal but constructive feedback>",
+      "roast": "<feedback on summary section>",
       "severity": "<brutal | harsh | mild>"
     },
     "skills": {
       "score": <0-100>,
-      "roast": "<brutal feedback on skills section>",
-      "missing_skills": ["<skill from JD not in resume>", ...]
+      "roast": "<feedback on skills section>",
+      "missing_skills": ["<skill from JD not in resume>", ...up to 5]
     },
     "experience": {
       "score": <0-100>,
-      "roast": "<brutal feedback on experience>",
-      "weak_bullets": ["<weak bullet point that needs fixing>", ...]
+      "roast": "<feedback on experience>",
+      "weak_bullets": ["<weak bullet point>", ...up to 3]
     },
     "projects": {
       "score": <0-100>,
-      "roast": "<feedback on projects, or 'No projects section found' if missing>"
+      "roast": "<feedback on projects, or note if missing>"
     },
     "formatting": {
       "score": <0-100>,
-      "roast": "<ATS formatting issues>",
-      "issues": ["<specific formatting issue>", ...]
+      "roast": "<ATS formatting feedback>",
+      "issues": ["<specific issue>", ...up to 3]
     }
   },
   "jd_mismatch": {
-    "missing_requirements": ["<required thing from JD not in resume>", ...],
-    "irrelevant_content": ["<thing in resume that doesn't help for this job>", ...]
+    "missing_requirements": ["<required thing from JD not in resume>", ...up to 5],
+    "irrelevant_content": ["<thing in resume that doesn't help>", ...up to 3]
   },
-  "overall_roast": "<2-3 sentence brutal summary of why this resume will/won't get shortlisted>"
+  "overall_roast": "<2-3 sentence summary of why this resume will/won't get shortlisted>"
 }
 
 SCORING GUIDELINES:
-- shortlist_probability: Be HARSH. 80+ means near-perfect match. 50-60 means decent chance. Below 40 means unlikely.
-- Most resumes should score 30-55 shortlist probability unless they're genuinely excellent matches.
+- shortlist_probability: 80+ = excellent match, 50-70 = decent, below 40 = unlikely
+- Be harsh but fair. Most resumes should score 30-55 unless genuinely excellent.
 - If key requirements are missing, score below 40.
-- Don't sugarcoat. Job seekers need the TRUTH.
 
-Return ONLY the JSON, no markdown formatting.`
+Return ONLY the JSON, no markdown formatting, no code blocks.`
 
     const geminiResponse = await callGeminiWithRetry(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`,
       {
         contents: [{ parts: [{ text: roastPrompt }] }],
         generationConfig: {
-          temperature: 0.7,
+          temperature: 0.8,
           maxOutputTokens: 4096
         }
       }
@@ -190,31 +209,31 @@ Return ONLY the JSON, no markdown formatting.`
       roastData = {
         shortlist_probability: 35,
         verdict: "MAYBE",
-        verdict_reason: "Your resume has potential but needs significant work to stand out.",
+        verdict_reason: "Your resume needs work to stand out for this role.",
         top_3_rejection_reasons: [
-          "Missing key skills mentioned in the job description",
-          "Bullets don't demonstrate measurable impact",
-          "Resume doesn't tell a clear career story"
+          "Missing key skills from the job description",
+          "Bullets don't show measurable impact",
+          "Resume doesn't align well with the role"
         ],
         ats_score: 50,
         keyword_match_percent: 40,
-        keyword_gaps: ["Unable to analyze specific keywords"],
+        keyword_gaps: ["Could not analyze specific keywords"],
         sections: {
-          summary: { score: 50, roast: "Your summary needs work - it should sell you in 2-3 lines.", severity: "harsh" },
-          skills: { score: 50, roast: "Skills section needs better alignment with job requirements.", missing_skills: [] },
+          summary: { score: 50, roast: "Summary needs more punch and relevance to the role.", severity: "harsh" },
+          skills: { score: 50, roast: "Skills section needs better JD alignment.", missing_skills: [] },
           experience: { score: 50, roast: "Experience bullets lack impact metrics.", weak_bullets: [] },
-          projects: { score: 50, roast: "Projects section could better showcase relevant work." },
-          formatting: { score: 60, roast: "Formatting appears acceptable but could be cleaner.", issues: [] }
+          projects: { score: 50, roast: "Projects could better showcase relevant work." },
+          formatting: { score: 60, roast: "Formatting is acceptable but could be cleaner.", issues: [] }
         },
         jd_mismatch: {
-          missing_requirements: ["Review job description for specific requirements"],
+          missing_requirements: ["Review JD for specific requirements"],
           irrelevant_content: []
         },
-        overall_roast: "This resume needs optimization to compete effectively. Focus on tailoring content to the specific job requirements and quantifying your achievements."
+        overall_roast: "This resume needs optimization. Focus on tailoring content to the job and quantifying achievements."
       }
     }
 
-    console.log('Roast analysis complete:', roastData.verdict, roastData.shortlist_probability)
+    console.log('Roast complete:', roastData.verdict, roastData.shortlist_probability)
 
     return new Response(
       JSON.stringify({ success: true, roast: roastData }),
