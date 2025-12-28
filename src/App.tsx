@@ -12,6 +12,7 @@ import ExtensionAuth from "./pages/ExtensionAuth";
 import ExtensionAuthSuccess from "./pages/ExtensionAuthSuccess";
 import ExtensionInstructions from "./pages/ExtensionInstructions";
 import NotFound from "./pages/NotFound";
+import DevRoastDemo from "./pages/DevRoastDemo";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/extension-auth-success" element={<ExtensionAuthSuccess />} />
             <Route path="/extension-instructions" element={<ExtensionInstructions />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            {import.meta.env.DEV && <Route path="/dev/roast" element={<DevRoastDemo />} />}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

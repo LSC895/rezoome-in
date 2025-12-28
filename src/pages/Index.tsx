@@ -40,7 +40,7 @@ const Index = () => {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-muted text-muted-foreground rounded-full text-sm">
             <Eye className="h-4 w-4" />
-            We listed and we Judge (😈)
+            We listen and we Judge (😈)
           </div>
           
           {/* Main Headline */}
@@ -49,11 +49,11 @@ const Index = () => {
           </h1>
           
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            to make u built a resume
+            to make u built a resume that gets you interviews, not rejections.
           </p>
 
           <p className="text-sm text-primary font-medium">
-            Free roast • No sign-up • Get it fixed instantly
+            Free roast • Get it fixed instantly
           </p>
 
           {/* CTA */}
