@@ -244,10 +244,11 @@ Return ONLY JSON.`
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     )
 
-  } catch (error) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     console.error('Error in generate-fix function:', error)
     return new Response(
-      JSON.stringify({ error: error.message, details: 'Please try again.' }),
+      JSON.stringify({ error: errorMessage, details: 'Please try again.' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
   }

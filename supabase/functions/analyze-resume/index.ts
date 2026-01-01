@@ -242,11 +242,12 @@ Provide helpful, actionable feedback that motivates improvement while acknowledg
       }
     )
 
-  } catch (error) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     console.error('Error in analyze-resume function:', error)
     return new Response(
       JSON.stringify({ 
-        error: error.message,
+        error: errorMessage,
         details: 'Please try again in a few moments. The AI service may be temporarily busy.'
       }),
       {

@@ -109,11 +109,12 @@ If no master resume is provided, create a realistic professional resume template
       }
     )
 
-  } catch (error) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     console.error('Error in generate-resume function:', error)
     return new Response(
       JSON.stringify({ 
-        error: error.message,
+        error: errorMessage,
         details: 'Please try again with your job description.'
       }),
       {
